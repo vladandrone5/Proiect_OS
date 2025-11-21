@@ -11,7 +11,7 @@ void uart_putchar(u8 c)
     return;
 }
 
-void uart_print(const u8 *string)
+void uart_prints(const u8 *string)
 {
     while(*string)
     {

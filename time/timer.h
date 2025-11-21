@@ -7,8 +7,8 @@
 #define MTIME_OFFSET 0XBFF8 // csr mtime register offset in the clint
 #define MTIMECMP_OFFSET 0X4000 // csr mtimecmp register offset in the clint, used to generate timer interrupts
 
-#ifndef CLK_FREAKUENCY
-#define CLK_FREAKUENCY (u32)3686400 // qemu riscv virtio internal clk freq
+#ifndef CPU_CLK_FREAKUENCY
+#define CPU_CLK_FREAKUENCY (u32)3686400 // qemu riscv virtio internal clk freq
 #endif
 
 #define FREAKUENCY (u32)100
