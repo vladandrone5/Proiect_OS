@@ -26,14 +26,15 @@ _start:
     # .option norelax
 	#     la		gp, _global_pointer$
     # .option pop
-    #not needed
-    csrr t0,mhartid
-    beqz t0, hlt_multiprocessors_running
+    # not needed ?
+    csrr t0, mhartid
+    bnez t0, hlt_multiprocessors_running
 
-    la sp, stack_top     # Set stack pointer to the top of the 1MB stack
+    la sp, stack_top # Set stack pointer to the top of the 1MB stack
 
-    csrw	satp, zero # satp needed for virtual memory, better make sure is 0, instruction may not be needed
-    jal clear_bss
+    jal _reset_essential_csr # reset some csrs to ensure known behaviour
+
+    jal _clear_bss # set bss area to 0
 
     la a0, boot_msg
     jal puts # write booting message
@@ -42,11 +43,10 @@ _start:
     
 1:  j 1b # loop in case kmain somehow exits loop
 
-hlt_multiprocessors_running:
-    j hlt_multiprocessors_running
+_hlt_multiprocessors_running:
+    j _hlt_multiprocessors_running
 
-
-clear_bss:
+_clear_bss:
     la a0, _bss_start
     la a1, _bss_end
 2:   
@@ -54,6 +54,15 @@ clear_bss:
     sw zero,0(a0)
     addi a0,a0,4
 3:
+    ret
+
+_reset_essential_csr:
+    csrw mstatus, zero # status csr used for a lot of things, mainly also mie and mip
+    csrw mip, zero # interrupts pending csr
+    csrw mie, zero # interrupts enable csr
+    csrw mtvec, zero # interrupt subroutine table vector
+    csrw medeleg, zero # delegation csr used when having supervisor mode besides machine and user, we do not use it
+    csrw satp, zero # satp csr needed for virtual memory, better make sure is 0, instruction may not be needed
     ret
 
 puts:

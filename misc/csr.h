@@ -51,9 +51,9 @@ static inline void set_csr_mtvec(u32 vec_addr)
 static inline void set_csr_medeleg(u32 mask)
 {
     __asm__ volatile ("csrw medeleg,%0"
-                        :
+                        : /* output not used */  
                         :"r" (mask)
-                        :
+                        : /* clobered not used */
                      );
     return;
 }
