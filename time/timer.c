@@ -9,7 +9,7 @@ void get_mtime(void)
     u32 mtime_high_val = *mtime_high;
     u32 mtime_low_val  = *mtime_low;
 
-    timer = ((u64)*mtime_high_val << 32 | *mtime_low_val); 
+    timer = ((u64)mtime_high_val << 32 | mtime_low_val); 
 }
 
 void set_mtimecmp(u32 os_freq)

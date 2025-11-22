@@ -6,4 +6,6 @@
 #include "../uart/uart.h"
 #include "../interrupt/interrupt.h"
 
+void kmain(void);
+
 #endif

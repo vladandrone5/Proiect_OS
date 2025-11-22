@@ -2,10 +2,14 @@
 
 void kmain(void) {
     clear_screen();
-	uart_print("Hello world!\r\n");
+
+	interrupts_init();
+
+	uart_prints("Pisi caca\r\n");
 	while(1) {
 		// Read input from the UART
-		uart_putchar(*UART_ADDR);
+		uart_printf("Ticks:%d\n",ticks);
+		//uart_putchar(*UART_ADDR);
 	}
 	return;
 }

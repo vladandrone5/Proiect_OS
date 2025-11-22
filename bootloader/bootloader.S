@@ -28,7 +28,7 @@ _start:
     # .option pop
     # not needed ?
     csrr t0, mhartid
-    bnez t0, hlt_multiprocessors_running
+    bnez t0, _hlt_multiprocessors_running
 
     la sp, stack_top # Set stack pointer to the top of the 1MB stack
 
@@ -57,7 +57,7 @@ _clear_bss:
     ret
 
 _reset_essential_csr:
-    csrw mstatus, zero # status csr used for a lot of things, mainly also mie and mip
+    # csrw mstatus, zero # status csr used for a lot of things, mainly also mie and mip
     csrw mip, zero # interrupts pending csr
     csrw mie, zero # interrupts enable csr
     csrw mtvec, zero # interrupt subroutine table vector
