@@ -32,7 +32,7 @@ _start:
 
     la sp, stack_top # Set stack pointer to the top of the 1MB stack
 
-    jal _reset_essential_csr # reset some csrs to ensure known behaviour
+    #jal _reset_essential_csr # reset some csrs to ensure known behaviour
 
     jal _clear_bss # set bss area to 0
 
@@ -58,7 +58,7 @@ _clear_bss:
 
 _reset_essential_csr:
     # csrw mstatus, zero # status csr used for a lot of things, mainly also mie and mip
-    csrw mip, zero # interrupts pending csr
+    # csrw mip, zero # interrupts pending csr
     csrw mie, zero # interrupts enable csr
     csrw mtvec, zero # interrupt subroutine table vector
     csrw medeleg, zero # delegation csr used when having supervisor mode besides machine and user, we do not use it

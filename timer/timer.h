@@ -15,11 +15,11 @@ typedef long long unsigned int interrupt_event_counter;
 
 #define FREAKUENCY (u32)100
 
-volatile u32 *MTIME_ADDR = (u32 *)(CLINT_ADDR + MTIME_OFFSET);
-volatile u32 *MTIMECMP_ADDR = (u32 *)(CLINT_ADDR + MTIMECMP_OFFSET);
+extern volatile u32 *MTIME_ADDR;
+extern volatile u32 *MTIMECMP_ADDR;
 
-u64 timer=0;
-interrupt_event_counter ticks = 0;
+extern u64 timer;
+extern interrupt_event_counter ticks;
 
 void get_mtime(void);
 void set_mtimecmp(u32 freq);

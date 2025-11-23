@@ -1,8 +1,12 @@
 #include "uart.h"
+#include <stdarg.h>
+
+volatile u8 *UART_ADDR = (u8 *)0x10000000;
+u8 clear_screen_sequence[5] = {0x1B,0x5B,0x32,0x4A,0x00};
 
 void clear_screen(void)
 {
-    uart_prints(clear_screen_sequence);
+    uart_prints((const u8 *)clear_screen_sequence);
 }
 
 void uart_putchar(const u8 c)
@@ -74,8 +78,8 @@ void uart_printf(const u8 *format, ...)
 }
 
 
-
-void print(const char *sep,const char *end, ...)
-{
+// TO BE IMPLEMENTED
+// void print(const char *sep,const char *end, ...)
+// {
     
-}
+// }
