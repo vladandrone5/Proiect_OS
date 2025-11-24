@@ -12,7 +12,7 @@ typedef union{
 }vargs_union;
 
 extern volatile u8 *UART_ADDR ;
-extern u8 clear_screen_sequence[5];
+extern u8 clear_screen_sequence[4];
 
 void uart_putchar(u8 c);
 void uart_prints(const u8 *string);

@@ -32,6 +32,5 @@ void interrupts_init(void)
     write_csr_mie(MIE_MTIE_MASK);
     write_csr_mstatus(read_csr_mstatus() | MSTATUS_MIE_MASK);
     write_csr_medeleg(MEDELEG_DISABLE_MASK);
-   
 }
 
