@@ -47,7 +47,7 @@ void uart_printf(const u8 *format, ...)
     {
         if(*format != '%')
         {
-            uart_putchar(*format);
+            uart_putchar(*format++);
             continue;
         }
 
@@ -59,7 +59,7 @@ void uart_printf(const u8 *format, ...)
             case('s'): { value.string = va_arg(vargs,const u8 *); uart_prints(value.string); continue;}
         }
 
-        u32 abs_value = 0;
+        u32 abs_value = value.uvalue;
         if((*format == 'd') && value.ivalue<0)
         {
             uart_putchar('-');
@@ -73,9 +73,12 @@ void uart_printf(const u8 *format, ...)
             uart_putchar(NUMERIC_CHAR_OFFSET + abs_value%10);
             abs_value/=10;
         }
+        ++format;
     }
 
 }
+
+
 
 
 // TO BE IMPLEMENTED

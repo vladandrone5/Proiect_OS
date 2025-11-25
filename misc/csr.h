@@ -4,29 +4,65 @@
 #include "types.h"
 
 ///mie - machine interrupt enable register; last 16 bits for normal interrupts
-#define MIE_MEIE_MASK (u32)(1 << 11) // msie - machine external-level interrupt enable bit
-#define MIE_MTIE_MASK (u32)(1 << 7)  // mtie - machine timer interrupt enable bit
-#define MIE_MSIE_MASK (u32)(1 << 3)  // msie - machine software-level interrupt enable bit
+#define MIE_SEIE_MASK (u32)(1 << 9) // msie - machine external-level interrupt enable bit
+#define MIE_STIE_MASK (u32)(1 << 5)  // mtie - machine timer interrupt enable bit
+#define MIE_SSIE_MASK (u32)(1 << 1)  // msie - machine software-level interrupt enable bit
+#define MIE_DISABLE_MASK (u32)(0)
 #define MEDELEG_DISABLE_MASK (u32)(0) // disable delegation to supervisor mode 
+#define SATP_DISABLE_MASK (u32)(0)
 
-#define MTVEC_MODE_MASK (u32)(1) // enable vectored interrupts through MTVEC reg : lsb is mode and all the other bits are the address of the ISR vector
+#define STVEC_MODE_MASK (u32)(1) // enable vectored interrupts through MTVEC reg : lsb is mode and all the other bits are the address of the ISR vector
 
 //mip - machine interrupt pending register; last 16 bits for normal interrupts; its has machanisms to be pending
 
 //mstatus - hart operating state register
-#define MSTATUS_MIE_MASK (u32)(1 << 3) // enable mie for hart
+#define MSTATUS_SIE_MASK (u32)(1 << 1) // enable mie for hart
 
-static inline u32 read_csr_mstatus(void);
-static inline u32 read_csr_mie(void); 
-static inline u32 read_csr_mtvec(void); 
-static inline u32 read_csr_medeleg(void); 
+static inline u32 read_csr_sstatus(void);
+static inline u32 read_csr_sie(void); 
+static inline u32 read_csr_stvec(void); 
+static inline u32 read_csr_satp(void);
 
-static inline void write_csr_mstatus(u32 mask); 
-static inline void write_csr_mie(u32 mask); 
-static inline void write_csr_mtvec(u32 vec_addr);
-static inline void write_csr_medeleg(u32 mask);
+static inline void clear_bit_csr_sstatus(u32 mask);
 
-static inline u32 read_csr_mstatus(void)
+static inline void write_csr_sstatus(u32 mask); 
+static inline void write_csr_sie(u32 mask); 
+static inline void write_csr_stvec(u32 vec_addr);
+static inline void write_csr_satp(u32 mask);
+
+
+static inline u32 read_csr_satp(void)
+{
+    u32 csr_value=0;
+    __asm__ volatile ("csrr %0,satp"
+                        :"=r" (csr_value)
+                        :
+                        :
+                     );
+    return csr_value;
+}
+
+static inline void write_csr_satp(u32 mask)
+{
+    __asm__ volatile("csrw satp,%0"
+                        :
+                        :"r" (mask)
+                        :
+                     );
+    return;
+}
+
+static inline void clear_bit_csr_sstatus(u32 mask)
+{
+    __asm__ volatile ("csrc sstatus, %0"
+                        :
+                        :"r" (mask)
+                        :
+                     );
+    return;
+}
+
+static inline u32 read_csr_sstatus(void)
 {
     u32 csr_value = 0;
     __asm__ volatile ("csrr %0, mstatus"
@@ -36,30 +72,20 @@ static inline u32 read_csr_mstatus(void)
                      );
     return csr_value;
 }
-static inline u32 read_csr_mie(void)
+static inline u32 read_csr_sie(void)
 {
     u32 csr_value = 0;
-    __asm__ volatile ("csrr %0, mstatus"
+    __asm__ volatile ("csrr %0, sie"
                         :"=r" (csr_value)
                         : // input not used
                         : // clobbered not used
                      );
     return csr_value;
 }
-static inline u32 read_csr_mtvec(void)
+static inline u32 read_csr_stvec(void)
 {
     u32 csr_value = 0;
-    __asm__ volatile ("csrr %0, mstatus"
-                        :"=r" (csr_value)
-                        : // input not used
-                        : // clobbered not used
-                     );
-    return csr_value;
-}
-static inline u32 read_csr_medeleg(void)
-{
-    u32 csr_value = 0;
-    __asm__ volatile ("csrr %0, mstatus"
+    __asm__ volatile ("csrr %0, stvec"
                         :"=r" (csr_value)
                         : // input not used
                         : // clobbered not used
@@ -67,9 +93,9 @@ static inline u32 read_csr_medeleg(void)
     return csr_value;
 }
 
-static inline void write_csr_mie(u32 mask)
+static inline void write_csr_sie(u32 mask)
 {                  
-    __asm__ volatile ("csrw mie,%0"                 
+    __asm__ volatile ("csrw sie,%0"                 
                         : /* output not used */     
                         :"r" (mask)                 
                         : /* clobered not used */
@@ -77,9 +103,9 @@ static inline void write_csr_mie(u32 mask)
     return;
 }
 
-static inline void write_csr_mstatus(u32 mask)
+static inline void write_csr_sstatus(u32 mask)
 {             
-    __asm__ volatile ("csrw mstatus,%0"              
+    __asm__ volatile ("csrw sstatus,%0"              
                         : /* output not used */     
                         :"r" (mask)                 
                         : /* clobered not used */
@@ -87,21 +113,11 @@ static inline void write_csr_mstatus(u32 mask)
     return;
 }
 
-static inline void write_csr_mtvec(u32 vec_addr)
+static inline void write_csr_stvec(u32 vec_addr)
 {
-    __asm__ volatile ("csrw mtvec,%0"
+    __asm__ volatile ("csrw stvec,%0"
                         : /* output not used */ 
                         :"r" (vec_addr)
-                        : /* clobered not used */
-                     );
-    return;
-}
-
-static inline void write_csr_medeleg(u32 mask)
-{
-    __asm__ volatile ("csrw medeleg,%0"
-                        : /* output not used */  
-                        :"r" (mask)
                         : /* clobered not used */
                      );
     return;

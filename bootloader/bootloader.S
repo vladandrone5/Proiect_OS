@@ -5,6 +5,7 @@
 
 .section .rodata
 boot_msg: .string "\n\r###################################\n\r#\t\t\t\t  #\n\r#\tBooting EdgarieOS...\t  #\n\r#\t\t\t\t  #\n\r###################################\n\r"
+dirs_msg: .string "\n\rInterrupt subroutine called...\n\r"
 
 .section .text # .text - execute block
 .globl _start
@@ -32,6 +33,8 @@ _start:
 
     jal _clear_bss # set bss area to 0
 
+    # jal set_init_direct_ihs # set mtvec at the start before enabling vectored interrupts
+
     la a0, boot_msg
     jal puts # write booting message
 
@@ -48,6 +51,24 @@ _clear_bss:
     addi a0,a0,4
 3:
     ret
+
+# set_init_direct_ihs: # interrupt handler subroutine
+#     csrrci  zero, sstatus, 8
+#     csrrwi  zero , mie, 0 
+#     csrrci zero,mtvec, 1
+#     la t0,init_dirs
+#     csrrw zero,mtvec, t0
+#     ret
+
+
+# init_dirs: # initial direct interupt subroutine
+#     addi sp,sp,-4
+#     sw a0,0(sp)
+#     la a0, dirs_msg
+#     jal puts
+#     lw a0,0(sp)
+#     addi sp,sp,-4
+#     mret
 
 puts:
     mv t0, a0

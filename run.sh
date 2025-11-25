@@ -58,4 +58,4 @@ echo "Starting QEMU..."
 riscv64-unknown-elf-objcopy -O binary $OUTPUT_ELF ../build/bootloader.bin
 
 # Run QEMU
-qemu-system-riscv32 -machine virt -m 4G  -bios ../opensbi-riscv32-generic-fw_dynamic.bin -kernel $OUTPUT_ELF
+qemu-system-riscv32 -machine virt -m 4G  -bios ../opensbi-riscv32-generic-fw_dynamic.bin -kernel $OUTPUT_ELF # i fucking hate openbsi i will kill someone that workedn ont he development for making it start in supervisor mode instread of machine mide IN PIZDA MASII

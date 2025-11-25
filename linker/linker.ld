@@ -9,7 +9,7 @@ SECTIONS {
     .rodata : ALIGN(4){ *(.rodata*) }
     .data : ALIGN(4){ *(.data*) } /*collects initialized data*/
 
-    
+    . = 0x80300000;
     .bss : ALIGN(4) { 
         _bss_start = .;
         *(.bss*)
