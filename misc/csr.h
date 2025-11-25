@@ -16,7 +16,7 @@
 //mip - machine interrupt pending register; last 16 bits for normal interrupts; its has machanisms to be pending
 
 //mstatus - hart operating state register
-#define MSTATUS_SIE_MASK (u32)(1 << 1) // enable mie for hart
+#define SSTATUS_SIE_MASK (u32)(1 << 1) // enable mie for hart
 
 static inline u32 read_csr_sstatus(void);
 static inline u32 read_csr_sie(void); 
@@ -65,7 +65,7 @@ static inline void clear_bit_csr_sstatus(u32 mask)
 static inline u32 read_csr_sstatus(void)
 {
     u32 csr_value = 0;
-    __asm__ volatile ("csrr %0, mstatus"
+    __asm__ volatile ("csrr %0, sstatus"
                         :"=r" (csr_value)
                         : // input not used
                         : // clobbered not used

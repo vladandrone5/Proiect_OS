@@ -10,7 +10,7 @@
 typedef long long unsigned int interrupt_event_counter;
 
 #ifndef CPU_CLK_FREAKUENCY
-#define CPU_CLK_FREAKUENCY (u32)3686400 // qemu riscv virtio internal clk freq
+#define CPU_CLK_FREAKUENCY (u32)10000000 // qemu riscv virtio internal clk freq
 #endif
 
 #define FREAKUENCY (u32)100

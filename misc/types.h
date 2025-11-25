@@ -7,7 +7,7 @@
 #define i16 signed short int
 #define u32 unsigned int
 #define i32 signed int
-#define u64 unsigned long long
-#define i64 signed long long
+#define u64 unsigned long long int
+#define i64 signed long long int
 
 #endif

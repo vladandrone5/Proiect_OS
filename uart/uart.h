@@ -7,8 +7,8 @@
 
 typedef union{
     const u8 *string;
-    u32 uvalue;
-    i32 ivalue;
+    u64 uvalue;
+    i64 ivalue;
 }vargs_union;
 
 extern volatile u8 *UART_ADDR ;

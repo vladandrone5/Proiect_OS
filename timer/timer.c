@@ -1,4 +1,5 @@
 #include "timer.h"
+#include "../uart/uart.h"
 
 volatile u32 *MTIME_ADDR = (u32 *)(CLINT_ADDR + MTIME_OFFSET);
 volatile u32 *MTIMECMP_ADDR = (u32 *)(CLINT_ADDR + MTIMECMP_OFFSET);
@@ -32,5 +33,5 @@ void set_mtimecmp(u32 os_freq)
 
 void print_timer(void)
 {
-    
+    uart_prints((const u8 *)"Timer interrupt...\n\r");
 }
