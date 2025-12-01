@@ -3,6 +3,7 @@
 
 #include "../misc/types.h"
 
+#define UART_ADDR (u32)0x10000000
 #define NUMERIC_CHAR_OFFSET '0'
 
 typedef union{
@@ -11,7 +12,7 @@ typedef union{
     i64 ivalue;
 }vargs_union;
 
-extern volatile u8 *UART_ADDR ;
+extern volatile u8 *UART_WR_ADDR;
 extern u8 clear_screen_sequence[4];
 
 void uart_putchar(u8 c);

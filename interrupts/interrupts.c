@@ -31,7 +31,7 @@ void interrupts_init(void)
 {
     setup_timer_int_csrs(FREAKUENCY);
     write_csr_stvec((u32)stvec_idt | STVEC_MODE_MASK); //it is recommended to have interrupts diabled before changing mtvec
-    write_csr_sie(SIE_STIE_MASK);
+    write_csr_sie(SIE_SEIE_MASK | SIE_STIE_MASK);
     write_csr_sstatus(read_csr_sstatus() | SSTATUS_SIE_MASK);
 }
 

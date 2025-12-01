@@ -17,10 +17,7 @@ void kmain(void) {
 	uart_prints((const u8 *)"ceva ceva\r\n");
 	uart_printf((const u8 *)"data:%d\n\r",(i32)-11);
 	while(1) {
-		// Read input from the UART
-		// uart_printf((const u8 *)"Time:%u\n",(u32)timer);
-		// uart_prints((const u8 *)"test...\n\r");
-		//uart_putchar(*UART_ADDR);
+		
 	}
 	return;
 }

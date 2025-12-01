@@ -22,7 +22,6 @@ static inline u32 read_csr_sstatus(void);
 static inline u32 read_csr_sie(void); 
 static inline u32 read_csr_stvec(void); 
 static inline u32 read_csr_satp(void);
-
 static inline u64 read_csr_mtime(void);
 
 static inline void clear_bit_csr_sstatus(u32 mask);

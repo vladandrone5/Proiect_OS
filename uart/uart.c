@@ -1,7 +1,7 @@
 #include "uart.h"
 #include <stdarg.h>
 
-volatile u8 *UART_ADDR = (u8 *)0x10000000;
+volatile u8 *UART_WR_ADDR = (u8 *)UART_ADDR;
 u8 clear_screen_sequence[4] = {0x1B,0x5B,0x32,0x4A};
 
 void clear_screen(void)
@@ -11,7 +11,7 @@ void clear_screen(void)
 
 void uart_putchar(const u8 c)
 {
-    *UART_ADDR=c;
+    *UART_WR_ADDR=c;
     return;
 }
 
