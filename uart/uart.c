@@ -6,7 +6,7 @@ u8 clear_screen_sequence[4] = {0x1B,0x5B,0x32,0x4A};
 
 void clear_screen(void)
 {
-    uart_prints((const u8 *)clear_screen_sequence);
+    uart_prints(clear_screen_sequence);
 }
 
 void uart_putchar(const u8 c)
@@ -24,18 +24,6 @@ void uart_prints(const u8 *string)
     return;
 }
 
-u32 invert_number(u32 number)
-{
-    u32 inverted_number=0;
-    while(number)
-    {
-        inverted_number*=10;
-        inverted_number+=number%10;
-        number/=10;
-    }
-    return inverted_number;
-}
-
 void uart_printf(const u8 *format, ...)
 {
     va_list vargs;
@@ -45,18 +33,25 @@ void uart_printf(const u8 *format, ...)
 
     while(*format)
     {
+
         if(*format != '%')
         {
-            uart_putchar(*format++);
+            uart_putchar(*format);
+
+            if(*format == '\n')
+                uart_putchar((u8)'\r');
+
+            ++format;    
             continue;
         }
+
 
         ++format;
         switch(*format)
         {
             case('d'): { value.ivalue = va_arg(vargs, i32); break; }
             case('u'): { value.uvalue = va_arg(vargs, u32); break; }
-            case('s'): { value.string = va_arg(vargs,const u8 *); uart_prints(value.string); continue;}
+            case('s'): { value.string = va_arg(vargs,const u8 *); uart_prints(value.string); ++format; continue;}
         }
 
         u32 abs_value = value.uvalue;
@@ -66,19 +61,21 @@ void uart_printf(const u8 *format, ...)
             abs_value = -value.ivalue;
         }
 
-        abs_value = invert_number(abs_value);
+        u32 divisor = 1;
 
-        while(abs_value)
-        {
-            uart_putchar(NUMERIC_CHAR_OFFSET + abs_value%10);
-            abs_value/=10;
+        while (abs_value / divisor > 9)
+            divisor *= 10;
+
+        while (divisor > 0) {
+            uart_putchar((u8)'0' + abs_value / divisor);
+            abs_value %= divisor;
+            divisor /= 10;
         }
+
         ++format;
     }
 
 }
-
-
 
 
 // TO BE IMPLEMENTED

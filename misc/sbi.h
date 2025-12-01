@@ -1,7 +1,7 @@
 #ifndef SBI_H
 #define SBI_H
 
-#include "../misc/types.h"
+#include "types.h"
 #include "../timer/timer.h"
 
 // SBI Extension ID for setting the timer

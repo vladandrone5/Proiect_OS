@@ -4,10 +4,10 @@
 #include "types.h"
 
 ///mie - machine interrupt enable register; last 16 bits for normal interrupts
-#define MIE_SEIE_MASK (u32)(1 << 9) // msie - machine external-level interrupt enable bit
-#define MIE_STIE_MASK (u32)(1 << 5)  // mtie - machine timer interrupt enable bit
-#define MIE_SSIE_MASK (u32)(1 << 1)  // msie - machine software-level interrupt enable bit
-#define MIE_DISABLE_MASK (u32)(0)
+#define SIE_SEIE_MASK (u32)(1 << 9) // msie - machine external-level interrupt enable bit
+#define SIE_STIE_MASK (u32)(1 << 5)  // mtie - machine timer interrupt enable bit
+#define SIE_SSIE_MASK (u32)(1 << 1)  // msie - machine software-level interrupt enable bit
+#define SIE_DISABLE_MASK (u32)(0)
 #define MEDELEG_DISABLE_MASK (u32)(0) // disable delegation to supervisor mode 
 #define SATP_DISABLE_MASK (u32)(0)
 
@@ -23,6 +23,8 @@ static inline u32 read_csr_sie(void);
 static inline u32 read_csr_stvec(void); 
 static inline u32 read_csr_satp(void);
 
+static inline u64 read_csr_mtime(void);
+
 static inline void clear_bit_csr_sstatus(u32 mask);
 
 static inline void write_csr_sstatus(u32 mask); 
@@ -30,6 +32,24 @@ static inline void write_csr_sie(u32 mask);
 static inline void write_csr_stvec(u32 vec_addr);
 static inline void write_csr_satp(u32 mask);
 
+static inline u64 read_csr_mtime(void)
+{
+    u32 timel=0,timeh=0;
+
+    __asm__ volatile("csrr %0, time"
+                    :"=r" (timel)
+                    :
+                    :
+                    );
+
+    __asm__ volatile("csrr %0,timeh"
+                    :"=r" (timeh)
+                    :
+                    :
+                    );
+    
+    return (((u64)timeh << 32) | timel);
+}
 
 static inline u32 read_csr_satp(void)
 {
