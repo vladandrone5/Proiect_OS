@@ -4,6 +4,8 @@
 #include "../misc/types.h"
 
 #define UART_ADDR (u32)0x10000000
+#define UART_IER_OFFSET (u32)0x1
+#define UART_RX_INT_MASK (u32)0x1
 #define NUMERIC_CHAR_OFFSET '0'
 
 typedef union{
@@ -15,6 +17,9 @@ typedef union{
 extern volatile u8 *UART_WR_ADDR;
 extern u8 clear_screen_sequence[4];
 
+void enable_uart_rx_interrupt(void); // needed to get read data availabe interrrupt, basically keyboard interrupt
+
+u8 uart_readchar(void);
 void uart_putchar(u8 c);
 void uart_prints(const u8 *string);
 void uart_printf(const u8 *format, ...);

@@ -10,7 +10,7 @@
 typedef long long unsigned int interrupt_event_counter;
 
 #define CPU_CLK_FREAKUENCY (u32)10000000 // qemu riscv virtio internal clk freq
-#define FREAKUENCY (u32)100
+#define FREAKUENCY (u32)1
 
 // extern volatile u32 *MTIME_ADDR;
 // extern volatile u32 *MTIMECMP_ADDR;

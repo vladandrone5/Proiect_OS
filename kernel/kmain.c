@@ -12,6 +12,7 @@ void kmain(void) {
 	uart_printf((const u8 *)"IDT Addr(dec):%u\n\r",(u32)stvec_idt);
 
 	reset_interrupts();
+	uart_prints((const u8 *)"Reseted ints...\n");
 	interrupts_init();
 
 	uart_prints((const u8 *)"ceva ceva\r\n");
