@@ -62,6 +62,7 @@ void uart_printf(const u8 *format, ...)
         {
             case('d'): { value.ivalue = va_arg(vargs, i32); break; }
             case('u'): { value.uvalue = va_arg(vargs, u32); break; }
+            case('c'): { value.uvalue = va_arg(vargs, u32); uart_putchar((u8)value.uvalue); ++format; continue;}
             case('s'): { value.string = va_arg(vargs,const u8 *); uart_prints(value.string); ++format; continue;}
         }
 

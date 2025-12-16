@@ -74,7 +74,8 @@ void sti_handler(void)
 {
     ++ticks;
     setup_timer_int_csrs(FREAKUENCY);
-    print_ticks();
+    keys_pressed_cnt = 0;
+    //print_ticks();
 }
 
 #pragma GCC pop_options
@@ -86,8 +87,19 @@ void seie_handler(void)
 {
     u32 interrupts_id = read_claim_plic_int_msg(CTX_1_CLCO_ADDR);
     
-    u8 character = uart_readchar();
-    uart_printf((const u8 *)"Interrupt ID:%u\tChar received:%u\n",interrupts_id,(u32)character);
+
+    switch (interrupts_id)
+    {
+    case 10: 
+        {
+            u8 character = uart_readchar();
+            keys_pressed[keys_pressed_cnt++] = character;
+            process_keys(keys_pressed, keys_pressed_cnt);
+            break;
+        }   
+    default: {uart_printf((const u8 *)"Unknown interrupt handled:ID{%u}:\n",interrupts_id); break;}
+    }
+    
     send_complete_plic_int_ID(CTX_1_CLCO_ADDR,interrupts_id);
 }
 

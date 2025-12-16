@@ -4,7 +4,7 @@
 #include "../misc/types.h"
 
 #define UART_ADDR (u32)0x10000000
-#define UART_IER_OFFSET (u32)0x1
+#define UART_IER_OFFSET (u32)0x1 // interrupt enbale register
 #define UART_RX_INT_MASK (u32)0x1
 #define NUMERIC_CHAR_OFFSET '0'
 
