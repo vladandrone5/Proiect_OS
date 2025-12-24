@@ -34,11 +34,6 @@ void subroutine_enter(void)
 
     typing_buffer[keys_pressed_cnt++] = '\0';
 
-    for(u8 i=0;i<keys_pressed_cnt;i++)
-    {
-        uart_printf((const u8 *)"%u\t", typing_buffer[i]);
-    }
-
     strncpy(cmd_sent_buffer,typing_buffer, keys_pressed_cnt);
 
     keys_pressed_cnt = 0;

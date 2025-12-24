@@ -6,20 +6,21 @@ u32 strncpy(u8 *destination, const u8 *source, u32 buff_len)
 
     destination[0] = '\0';
 
-    for(u32 buff_idx = 0; buff_idx < buff_len; ++buff_idx)
+    u32 buff_idx = 0
+
+    for(; buff_idx <= buff_len; ++buff_idx)
     {
-        if(source[buff_idx])
-        {
-            destination[buff_idx] = source[buff_idx];
-            ++chars_copied;
-        }
-        else 
+       
+        destination[buff_idx] = source[buff_idx];
+        ++chars_copied;
+
+        if(!source[buff_idx])
         {
             break;
         }
     }
 
-    //destination[buff_len] = '\0';
+    destination[buff_idx] = '\0';
 
     return chars_copied;
 }
