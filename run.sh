@@ -32,6 +32,7 @@ $CC $ARCH -c bootloader/bootloader.S -o ../build/bootloader.o
 $CC $ARCH $COMMON_FLAGS -c uart/uart.c -o ../build/uart.o
 $CC $ARCH $COMMON_FLAGS -c timer/timer.c -o ../build/timer.o
 $CC $ARCH $COMMON_FLAGS -c plic/plic.c -o ../build/plic.o
+$CC $ARCH $COMMON_FLAGS -c string/string.c -o ../build/string.o
 $CC $ARCH $COMMON_FLAGS -c keyboard/keyboard.c -o ../build/keyboard.o
 $CC $ARCH $COMMON_FLAGS -c interrupts/interrupts.c -o ../build/interrupts.o
 $CC $ARCH $COMMON_FLAGS -c kernel/kmain.c -o ../build/kmain.o
@@ -43,6 +44,7 @@ $CC $ARCH $COMMON_FLAGS -T $LINKER_SCRIPT -o $OUTPUT_ELF \
     ../build/uart.o \
     ../build/timer.o \
     ../build/plic.o \
+    ../build/string.o \
     ../build/keyboard.o \
     ../build/interrupts.o \
     ../build/kmain.o

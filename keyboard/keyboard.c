@@ -1,14 +1,25 @@
 #include "keyboard.h"
 #include "../plic/plic.h"
 #include "../uart/uart.h"
+#include "../string/string.h"
 
-u8 keys_pressed[6] = {0};
+u8 typing_buffer[256] = {0};
+u8 cmd_sent_buffer[256] = {0};
 u8 keys_pressed_cnt = 0;
+u8 buffer_edit_idx = 0;
 
 void setup_keyboard_interrupt(u16 source,u32 priority, u32 ctx_addr)
 {
     set_plic_source_pry(source, priority);
     set_plic_source_int_en(ctx_addr, source);
+}
+
+void truncate_buffer(void)
+{
+    for(u8 idx = buffer_edit_idx-1; idx < keys_pressed_cnt; ++idx)
+    {
+        typing_buffer[idx] = typing_buffer[idx+1];
+    }
 }
 
 void subroutine_ctrl_p(void)
@@ -20,14 +31,39 @@ void subroutine_enter(void)
 {
     uart_putchar((u8)'\n');
     uart_putchar((u8)'\r');
+
+    typing_buffer[keys_pressed_cnt++] = '\0';
+
+    for(u8 i=0;i<keys_pressed_cnt;i++)
+    {
+        uart_printf((const u8 *)"%u\t", typing_buffer[i]);
+    }
+
+    strncpy(cmd_sent_buffer,typing_buffer, keys_pressed_cnt);
+
+    keys_pressed_cnt = 0;
+    buffer_edit_idx = 0;
+
+    uart_printf((const u8 *)"\n Kboard buffer:'%s'\n",cmd_sent_buffer);
 }
 
 void subroutine_backspace(void)
 {
     uart_putchar((u8)8);
     uart_putchar((u8)' ');
+
+    //truncate_buffer();
+
     uart_putchar((u8)8);
     uart_putchar((u8)'\0');
+
+    --buffer_edit_idx;
+    --keys_pressed_cnt;
+}
+
+void subroutine_left(void)
+{
+    --buffer_edit_idx;
 }
 
 void subroutine_non_special_key(u8 character)
@@ -38,16 +74,22 @@ void subroutine_non_special_key(u8 character)
         uart_printf((const u8 *)"%u\n",(u32)character);
 }
 
-void process_keys(u8 *keys_pressed, u8 keys_pressed_cnt)
+void process_keys(u8 character)
 {
-    for(u8 key_idx=0;key_idx<keys_pressed_cnt;key_idx++)
+
+    switch (character)
     {
-        switch (keys_pressed[key_idx])
-        {
-            case 16: { subroutine_ctrl_p(); break;}
-            case 13: { subroutine_enter(); break;}
-            case  8: { subroutine_backspace(); break;}
-            default: {subroutine_non_special_key(keys_pressed[key_idx]); break;}
+        case 16: { subroutine_ctrl_p(); break;}
+        case 13: { subroutine_enter(); break;}
+        case  8: { subroutine_backspace(); break;}
+        default: 
+        { 
+            if(keys_pressed_cnt < 255){
+                keys_pressed_cnt++;
+                typing_buffer[buffer_edit_idx++] = character;
+            }
+            subroutine_non_special_key(character); 
+            break;
         }
     }
 }

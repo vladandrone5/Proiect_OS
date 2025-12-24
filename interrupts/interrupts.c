@@ -74,7 +74,7 @@ void sti_handler(void)
 {
     ++ticks;
     setup_timer_int_csrs(FREAKUENCY);
-    keys_pressed_cnt = 0;
+    //keys_pressed_cnt = 0;
     //print_ticks();
 }
 
@@ -93,8 +93,7 @@ void seie_handler(void)
     case 10: 
         {
             u8 character = uart_readchar();
-            keys_pressed[keys_pressed_cnt++] = character;
-            process_keys(keys_pressed, keys_pressed_cnt);
+            process_keys(character);
             break;
         }   
     default: {uart_printf((const u8 *)"Unknown interrupt handled:ID{%u}:\n",interrupts_id); break;}

@@ -8,13 +8,18 @@
 
 #define DEBUG 0
 
-extern u8 keys_pressed[6];
+extern u8 typing_buffer[256];
+extern u8 cmd_sent_buffer[256];
 extern u8 keys_pressed_cnt;
+extern u8 buffer_edit_idx; /*idx used when deleting characters from the middle of the temrinal line*/
 
 void setup_keyboard_interrupt(u16 source, u32 priority,u32 ctx_addr);
 
-void process_keys(u8 *keys_pressed,u8 keys_pressed_cnt);
+void truncate_buffer(void);
 
+void process_keys(u8 character);
+
+void subroutine_left(void);
 void subroutine_ctrl_p(void);
 void subroutine_enter(void);
 void subroutine_backspace(void);
