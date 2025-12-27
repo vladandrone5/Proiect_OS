@@ -3,6 +3,10 @@
 
 #include "../misc/types.h"
 
+#define ERR_PRI 1 // process inactive
+#define ERR_PBF 2 // no more space to create process (process buffer full)
+#define ERR_IDU 3 // id already used
+
 typedef enum
 {
     zero,
@@ -32,20 +36,23 @@ typedef struct process_t
 {
     PROCESS_STATE state;
     u8 process_id;
+    u8 process_name[128];
     u8 process_idx;
     u8 priority_lvl;
-    regs process_env; 
+    regs env; 
 }process;
 
-extern u8 active_processes;
-extern u8 current_process;
-extern u8 process_runtime[8];
-extern process process_context[8];
+extern u8 last_used_id ;
+extern u8 active_processes; /* bitwise apparition vector to know how many processes are active */
+extern u8 current_process; /* numeric index to current process that runs */
+extern u8 process_runtime[8]; /* used to await priority (n) timer interrupts for each process */
+extern process process_context[8]; /* hold data for all active processes */
 
-void save_context(process *active_process);
-void load_context(process *active_process);
-u8 add_process(process *active_process,u8 id, u8 priority);
-u8 remove_process(proces *active_process);
+void initialize_processes(void);
+u8 save_context(process *active_process);
+u8 load_context(process *active_process);
+u8 add_process(u8 id,const u8 priority,const u8 *process_name);
+u8 remove_process(process *active_process);
 void schedule(void);
 
 #endif

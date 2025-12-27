@@ -2,6 +2,8 @@
 #include "../plic/plic.h"
 #include "../uart/uart.h"
 #include "../string/string.h"
+#include "../process/process.h"
+#include "../misc/sys_cmd.h"
 
 u8 typing_buffer[256] = {0};
 u8 cmd_sent_buffer[256] = {0};
@@ -39,7 +41,17 @@ void subroutine_enter(void)
     keys_pressed_cnt = 0;
     buffer_edit_idx = 0;
 
-    uart_printf((const u8 *)"\n Kboard buffer:'%s'\n",cmd_sent_buffer);
+    if(strncmp(cmd_sent_buffer,(const u8 *)"exec ",5))
+    {
+        uart_prints((const u8 *)"Entered exec subroutine!\n");
+        _exec(cmd_sent_buffer+5,++last_used_id, 10);
+        return;
+    }
+    else if(strncmp(cmd_sent_buffer,(const u8 *)"ps ",3))
+    {
+        _ps();
+        return;
+    }
 }
 
 void subroutine_backspace(void)

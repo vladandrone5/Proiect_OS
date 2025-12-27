@@ -2,12 +2,14 @@
 #include "../misc/types.h"
 #include "../uart/uart.h"
 #include "../interrupts/interrupts.h"
+#include "../process/process.h"
 
 void kmain(void) {
     //clear_screen();
 
 	u8 msg[] = "Start of kmain...";
 	// interrupts_init();
+	initialize_processes();
 	uart_printf((const u8 *)"%s\n",msg);
 	uart_printf((const u8 *)"IDT Addr(dec):%u\n\r",(u32)stvec_idt);
 
