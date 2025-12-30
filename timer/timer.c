@@ -41,5 +41,5 @@ void set_mtimecmp(u32 os_freq)
 
 void print_ticks(void)
 {
-    uart_printf((const u8 *)"Timer interrupt(ticks:%u)...\n",(u32)ticks);
+    uart_printf((const u8 *)"\nTimer interrupt(ticks:%u)...\n",(u32)ticks);
 }

@@ -75,7 +75,7 @@ void sti_handler(void)
     ++ticks;
     setup_timer_int_csrs(FREAKUENCY);
     //keys_pressed_cnt = 0;
-    //print_ticks();
+    print_ticks();
 }
 
 #pragma GCC pop_options

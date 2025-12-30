@@ -34,7 +34,8 @@ $CC $ARCH $COMMON_FLAGS -c timer/timer.c -o ../build/timer.o
 $CC $ARCH $COMMON_FLAGS -c plic/plic.c -o ../build/plic.o
 $CC $ARCH $COMMON_FLAGS -c string/string.c -o ../build/string.o
 $CC $ARCH $COMMON_FLAGS -c process/process.c -o ../build/process.o
-$CC $ARCH $COMMON_FLAGS -c misc/sys_cmd.c -o ../build/sys_cmd.o
+$CC $ARCH $COMMON_FLAGS -c example_progs/prog.c -o ../build/progs.o
+$CC $ARCH $COMMON_FLAGS -c terminal/sys_cmd.c -o ../build/sys_cmd.o
 $CC $ARCH $COMMON_FLAGS -c keyboard/keyboard.c -o ../build/keyboard.o
 $CC $ARCH $COMMON_FLAGS -c interrupts/interrupts.c -o ../build/interrupts.o
 $CC $ARCH $COMMON_FLAGS -c kernel/kmain.c -o ../build/kmain.o
@@ -48,6 +49,7 @@ $CC $ARCH $COMMON_FLAGS -T $LINKER_SCRIPT -o $OUTPUT_ELF \
     ../build/plic.o \
     ../build/string.o \
     ../build/process.o \
+    ../build/progs.o \
     ../build/sys_cmd.o \
     ../build/keyboard.o \
     ../build/interrupts.o \

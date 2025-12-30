@@ -1,22 +1,46 @@
 #include "process.h"
 #include "../string/string.h"
+#include "../misc/csr.h"
 
+u8 process_finished_running = 0;
 u8 last_used_id = 0;
 u8 active_processes = 0;
 u8 current_process = 0;
-u8 process_runtime[8] = {0};
+u8 process_runtime = 0;
 process process_context[8];
+u32 kernel_rpc = 0;
 
 u8 save_context(process *active_process);
 u8 load_context(process *active_process);
+
+u8 get_new_id(u8 id) /* gets new id if the curretn one is used */
+{
+  u8 new_id_used = 0;
+  for (u8 new_id = 1; new_id < 256; new_id++)
+    {
+      new_id_used = 0;
+      for (u8 pr = 0; pr < 8; pr++)
+      {
+        if (process_context[pr].state == PROCESS_ACTIVE && process_context[pr].process_id == id)
+        {
+          new_id_used = 1;
+          break;
+        }
+      }
+
+      if (!new_id_used)
+      {
+        return new_id;
+      }
+    }
+}
 
 void initialize_processes(void)
 {
   for (u8 pr = 0; pr < 8; pr++)
   {
       process_context[pr].process_id = 0;
-      process_context[pr].priority_lvl = 0;
-      process_context[pr].process_idx = 0;
+      process_context[pr].time_slice = 0;
       process_context[pr].state = PROCESS_INACTIVE;
       strncpy(process_context[pr].process_name, (const u8 *)"", 1);
 
@@ -27,19 +51,17 @@ void initialize_processes(void)
   }
 }
 
-u8 add_process(u8 id,const u8 priority,const u8 *process_name)
+void process_done(void)
 {
-  // u16 active_processes_time_slice = -1;
-  // while(active_processes_time_slice!=0)
-  // {
-  //     active_processes_time_slice=0;
-  //     for(u8 pr = 0; pr<8;pr++)
-  //     {
-  //         active_processes_time_slice+=process_runtime[pr];
-  //     }
-  // }
+  //TO DO: call remove process here
+  process_finished_running = 1;
 
-  // check if id used(should be), if there is enough space for a new process
+  __asm__ volatile("wfi");
+}
+
+u8 add_process(u8 id,u8 priority,const u8 *process_name)
+{
+  // check if id used(shouldnt be), if there is enough space for a new process
   if (active_processes == 255)
   {
     return ERR_PBF;
@@ -55,26 +77,9 @@ u8 add_process(u8 id,const u8 priority,const u8 *process_name)
     }
   }
 
-  u8 new_id_used = 0;
   if (return_value == ERR_IDU)
   {
-    for (u8 new_id = 1; new_id < 256; new_id++)
-    {
-      for (u8 pr = 0; pr < 8; pr++)
-      {
-        if (process_context[pr].state == PROCESS_ACTIVE && process_context[pr].process_id == id)
-        {
-          new_id_used = 1;
-          break;
-        }
-      }
-
-      if (!new_id_used)
-      {
-        id = new_id;
-        break;
-      }
-    }
+    id = get_new_id(id);
   }
 
   u8 shifts = 0;
@@ -87,15 +92,61 @@ u8 add_process(u8 id,const u8 priority,const u8 *process_name)
     }
   }
 
-  process *active_process = &process_context[shifts];
+  current_process = shifts;
+  process *active_process = &process_context[current_process];
 
   active_process->state = PROCESS_ACTIVE;
   active_process->process_id = id;
   strncpy(active_process->process_name, process_name, 128);
-  active_process->priority_lvl = priority;
-  active_process->process_idx = shifts;
+  active_process->time_slice = priority;
 
   return return_value;
+}
+
+void schedule(void)
+{
+  if(active_processes == 0)
+  {
+    write_csr_sepc(kernel_rpc);
+    return;
+  }
+  
+  if(process_runtime == process_context[current_process].time_slice)
+  {
+    process_runtime=0;
+    save_context(&process_context[current_process]);
+    
+    if(current_process<7 && ((1<<(6-current_process)) & active_processes))
+    {
+      current_process++;
+    }
+    else
+    {
+      current_process=0;
+    }
+
+    load_context(&process_context[current_process]);
+    write_csr_sepc(process_context[current_process].env.pc);
+  }
+  else
+  {
+    if(process_finished_running)
+    {
+      process_finished_running = 0;
+      
+      if(current_process == 8) // if there are no more active processes after one process has ninished running then return and wait for the next scheduling where control will be retrieved to kmain loop
+      {
+        return;
+      }
+      
+      load_context(&process_context[current_process]);
+      write_csr_sepc(process_context[current_process].env.pc);
+
+      return;
+    }
+
+    process_runtime++;
+  } 
 }
 
 u8 save_context(process *active_process)
@@ -104,10 +155,6 @@ u8 save_context(process *active_process)
   {
     return ERR_PRI;
   }
-
-  current_process = active_process->process_idx;
-
-  // check bit apparition mismatch
 
   __asm__ volatile("mv %0,zero ;"
                    "mv %1,ra ;"
@@ -172,6 +219,12 @@ u8 save_context(process *active_process)
       :
       :);
 
+  __asm__ volatile(
+    "auipc %0,0 ;"
+    :"=r"(process_context[current_process].env.pc)
+    :
+    :);
+
   return 0;
 }
 
@@ -181,8 +234,6 @@ u8 load_context(process *active_process)
   {
     return ERR_PRI;
   }
-
-  current_process = active_process->process_idx;
 
   // check bit apparition mismatch
 
@@ -245,6 +296,13 @@ u8 load_context(process *active_process)
       :
       : "r"(process_context[current_process].env.x[t5]), "r"(process_context[current_process].env.x[t6])
       :);
+
+  // __asm__ volatile(
+  //   "mv pc,%0 ;"
+  //   :
+  //   :"r"(process_context[current_process].env.pc)
+  // : );
+  // loading pc is not needed as sepc will become pc
 
   return 0;
 }

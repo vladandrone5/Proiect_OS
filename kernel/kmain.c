@@ -11,14 +11,11 @@ void kmain(void) {
 	// interrupts_init();
 	initialize_processes();
 	uart_printf((const u8 *)"%s\n",msg);
-	uart_printf((const u8 *)"IDT Addr(dec):%u\n\r",(u32)stvec_idt);
 
 	reset_interrupts();
 	uart_prints((const u8 *)"Reseted ints...\n");
 	interrupts_init();
-
-	uart_prints((const u8 *)"ceva ceva\r\n");
-	uart_printf((const u8 *)"data:%d\n\r",(i32)-11);
+	
 	while(1) {
 		
 	}

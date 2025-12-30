@@ -30,6 +30,7 @@ typedef enum
 typedef struct
 {
     u32 x[32]; 
+    u32 pc;
 }regs;
 
 typedef struct process_t
@@ -37,21 +38,24 @@ typedef struct process_t
     PROCESS_STATE state;
     u8 process_id;
     u8 process_name[128];
-    u8 process_idx;
-    u8 priority_lvl;
+    u8 time_slice;
     regs env; 
 }process;
 
 extern u8 last_used_id ;
 extern u8 active_processes; /* bitwise apparition vector to know how many processes are active */
 extern u8 current_process; /* numeric index to current process that runs */
-extern u8 process_runtime[8]; /* used to await priority (n) timer interrupts for each process */
+extern u8 process_runtime; /* used to await priority (n) timer interrupts for each process */
 extern process process_context[8]; /* hold data for all active processes */
+extern u32 kernel_rpc;
 
+
+u8 get_new_id(u8 id);
 void initialize_processes(void);
+void process_done(void);
 u8 save_context(process *active_process);
 u8 load_context(process *active_process);
-u8 add_process(u8 id,const u8 priority,const u8 *process_name);
+u8 add_process(u8 id,u8 priority,const u8 *process_name);
 u8 remove_process(process *active_process);
 void schedule(void);
 

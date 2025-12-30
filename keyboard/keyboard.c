@@ -3,7 +3,7 @@
 #include "../uart/uart.h"
 #include "../string/string.h"
 #include "../process/process.h"
-#include "../misc/sys_cmd.h"
+#include "../terminal/sys_cmd.h"
 
 u8 typing_buffer[256] = {0};
 u8 cmd_sent_buffer[256] = {0};
@@ -44,10 +44,10 @@ void subroutine_enter(void)
     if(strncmp(cmd_sent_buffer,(const u8 *)"exec ",5))
     {
         uart_prints((const u8 *)"Entered exec subroutine!\n");
-        _exec(cmd_sent_buffer+5,++last_used_id, 10);
+        _exec(++last_used_id, 10, cmd_sent_buffer+5);
         return;
     }
-    else if(strncmp(cmd_sent_buffer,(const u8 *)"ps ",3))
+    else if(strncmp(cmd_sent_buffer,(const u8 *)"ps",2) && *(cmd_sent_buffer+2) == '\0')
     {
         _ps();
         return;

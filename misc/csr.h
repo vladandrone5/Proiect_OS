@@ -21,6 +21,7 @@
 static inline u32 read_csr_sstatus(void);
 static inline u32 read_csr_sie(void); 
 static inline u32 read_csr_stvec(void); 
+static inline u32 read_csr_sepc(void);
 static inline u32 read_csr_satp(void);
 static inline u64 read_csr_mtime(void);
 
@@ -29,6 +30,7 @@ static inline void clear_bit_csr_sstatus(u32 mask);
 static inline void write_csr_sstatus(u32 mask); 
 static inline void write_csr_sie(u32 mask); 
 static inline void write_csr_stvec(u32 vec_addr);
+static inline void write_csr_sepc(u32 rpc); // return program counter
 static inline void write_csr_satp(u32 mask);
 
 static inline u64 read_csr_mtime(void)
@@ -50,6 +52,19 @@ static inline u64 read_csr_mtime(void)
     return (((u64)timeh << 32) | timel);
 }
 
+static inline u32 read_csr_sepc(void)
+{
+    u32 csr_value=0;
+
+    __asm__ volatile ("csrr %0, sepc"
+                        :"=r" (csr_value)
+                        :
+                        :
+                     );
+
+    return csr_value;
+}
+
 static inline u32 read_csr_satp(void)
 {
     u32 csr_value=0;
@@ -61,15 +76,7 @@ static inline u32 read_csr_satp(void)
     return csr_value;
 }
 
-static inline void write_csr_satp(u32 mask)
-{
-    __asm__ volatile("csrw satp,%0"
-                        :
-                        :"r" (mask)
-                        :
-                     );
-    return;
-}
+
 
 static inline void clear_bit_csr_sstatus(u32 mask)
 {
@@ -138,6 +145,26 @@ static inline void write_csr_stvec(u32 vec_addr)
                         : /* output not used */ 
                         :"r" (vec_addr)
                         : /* clobered not used */
+                     );
+    return;
+}
+
+static inline void write_csr_sepc(u32 rpc)
+{
+    __asm__ volatile ("csrw sepc,%0"
+                        :
+                        :"r"(rpc)
+                        :
+                     );
+    return;
+}
+
+static inline void write_csr_satp(u32 mask)
+{
+    __asm__ volatile("csrw satp,%0"
+                        :
+                        :"r" (mask)
+                        :
                      );
     return;
 }

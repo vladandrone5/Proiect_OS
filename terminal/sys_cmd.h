@@ -1,9 +1,9 @@
 #ifndef SYS_CMD_H
 #define SYS_CMD_H
 
-#include "types.h"
+#include "../misc/types.h"
 
-void _exec(const u8 *program, u8 id, const u8 priority);
+void _exec(u8 id, u8 priority,const u8 *program);
 void _kill(u8 id);
 void _ps(void);
 void _help(void);
