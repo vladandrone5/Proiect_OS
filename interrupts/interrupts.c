@@ -4,6 +4,7 @@
 #include "../uart/uart.h"
 #include "../plic/plic.h"
 #include "../keyboard/keyboard.h"
+#include "../process/process.h"
 
 void stvec_idt(void)
 {
@@ -72,10 +73,15 @@ void interrupts_init(void)
 
 void sti_handler(void) 
 {
+    if(kernel_rpc == 0)
+    {
+        kernel_rpc = read_csr_sepc();
+    }
+
+    schedule(); 
+
     ++ticks;
     setup_timer_int_csrs(FREAKUENCY);
-    //keys_pressed_cnt = 0;
-    print_ticks();
 }
 
 #pragma GCC pop_options

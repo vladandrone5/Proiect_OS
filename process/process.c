@@ -1,6 +1,7 @@
 #include "process.h"
 #include "../string/string.h"
 #include "../misc/csr.h"
+#include "../uart/uart.h"
 
 u8 process_finished_running = 0;
 u8 last_used_id = 0;
@@ -105,6 +106,7 @@ u8 add_process(u8 id,u8 priority,const u8 *process_name)
 
 void schedule(void)
 {
+  uart_printf((const u8 *)"Process runtime:%u\n",process_runtime);
   if(active_processes == 0)
   {
     write_csr_sepc(kernel_rpc);
@@ -113,8 +115,11 @@ void schedule(void)
   
   if(process_runtime == process_context[current_process].time_slice)
   {
+    uart_prints((const u8 *)"Current process time slice done!\n");
     process_runtime=0;
     save_context(&process_context[current_process]);
+
+    uart_prints((const u8 *)"Saved current process context!\n");
     
     if(current_process<7 && ((1<<(6-current_process)) & active_processes))
     {
@@ -125,8 +130,14 @@ void schedule(void)
       current_process=0;
     }
 
+    uart_printf((const u8 *)"Next process index:%u\n",current_process);
+
     load_context(&process_context[current_process]);
+    
+    uart_prints((const u8 *)"Loaded next process context!\n");
+
     write_csr_sepc(process_context[current_process].env.pc);
+    return;
   }
   else
   {
@@ -155,6 +166,16 @@ u8 save_context(process *active_process)
   {
     return ERR_PRI;
   }
+
+  u32 *caller_process_stack_frame = 0; // literally black magic
+  __asm__ volatile("mv %0, s0"
+                    : "=r" (caller_process_stack_frame)
+                    :
+                    :
+                  );
+    
+  caller_process_stack_frame = *(caller_process_stack_frame-2);
+  
 
   __asm__ volatile("mv %0,zero ;"
                    "mv %1,ra ;"
@@ -296,6 +317,8 @@ u8 load_context(process *active_process)
       :
       : "r"(process_context[current_process].env.x[t5]), "r"(process_context[current_process].env.x[t6])
       :);
+
+  write_csr_sepc(process_context[current_process].env.pc);
 
   // __asm__ volatile(
   //   "mv pc,%0 ;"

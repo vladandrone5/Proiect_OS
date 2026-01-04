@@ -22,7 +22,7 @@ typedef enum
 }REGISTER_ABI_NAME;
 
 typedef enum
-{
+{ // MAYBE ADD PROCESS WAITING AND MAYBE PROCESS DEAD
     PROCESS_INACTIVE,
     PROCESS_ACTIVE
 }PROCESS_STATE;
@@ -35,11 +35,11 @@ typedef struct
 
 typedef struct process_t
 {
+    regs env; 
+    u8 process_name[128];
     PROCESS_STATE state;
     u8 process_id;
-    u8 process_name[128];
     u8 time_slice;
-    regs env; 
 }process;
 
 extern u8 last_used_id ;
@@ -48,7 +48,6 @@ extern u8 current_process; /* numeric index to current process that runs */
 extern u8 process_runtime; /* used to await priority (n) timer interrupts for each process */
 extern process process_context[8]; /* hold data for all active processes */
 extern u32 kernel_rpc;
-
 
 u8 get_new_id(u8 id);
 void initialize_processes(void);

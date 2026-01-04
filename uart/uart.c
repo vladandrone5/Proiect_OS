@@ -3,6 +3,7 @@
 
 volatile u8 *UART_WR_ADDR = (u8 *)UART_ADDR;
 u8 clear_screen_sequence[4] = {0x1B,0x5B,0x32,0x4A};
+u8 hex_char[17] = "0123456789abcdef";
 
 void enable_uart_rx_interrupt(void)
 {
@@ -61,8 +62,12 @@ void uart_printf(const u8 *format, ...)
         switch(*format)
         {
             case('d'): { value.ivalue = va_arg(vargs, i32); break; }
+
+            case('x'):
             case('u'): { value.uvalue = va_arg(vargs, u32); break; }
+
             case('c'): { value.uvalue = va_arg(vargs, u32); uart_putchar((u8)value.uvalue); ++format; continue;}
+
             case('s'): { value.string = va_arg(vargs,const u8 *); uart_prints(value.string); ++format; continue;}
         }
 
@@ -73,15 +78,30 @@ void uart_printf(const u8 *format, ...)
             abs_value = -value.ivalue;
         }
 
-        u32 divisor = 1;
+        if((*format != 'x'))
+        {
+            u32 divisor = 1;
 
-        while (abs_value / divisor > 9)
-            divisor *= 10;
+            while (abs_value / divisor > 9)
+                divisor *= 10;
 
-        while (divisor > 0) {
-            uart_putchar((u8)'0' + abs_value / divisor);
-            abs_value %= divisor;
-            divisor /= 10;
+            while (divisor > 0) {
+                uart_putchar((u8)'0' + abs_value / divisor);
+                abs_value %= divisor;
+                divisor /= 10;
+            }
+        }
+        else
+        {
+            uart_putchar((u8)'0');
+            uart_putchar((u8)'x');
+
+            u32 nibble_mask = 15;
+
+            for(u8 nibblemg = 8; nibblemg > 0; --nibblemg) // nibble msb group, msb stands for the fact that it starts from left to right
+            {
+                uart_putchar(hex_char[abs_value>>((nibblemg-1)*4) & nibble_mask]);
+            }
         }
 
         ++format;

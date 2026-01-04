@@ -18,8 +18,14 @@ void _exec(u8 id, u8 priority, const u8 *program)
 
     if(strncmp(process_context[current_process].process_name,(const u8 *)"prog1",6))
     {
-        kernel_rpc = read_csr_sepc();
+        process_runtime = 0;
         write_csr_sepc((u32)&prog1);
+    }
+
+    if(strncmp(process_context[current_process].process_name,(const u8 *)"prog2",6))
+    {
+        process_runtime = 0;
+        write_csr_sepc((u32)&prog2);
     }
 }
 

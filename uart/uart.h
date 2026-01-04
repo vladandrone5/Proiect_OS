@@ -16,6 +16,7 @@ typedef union{
 
 extern volatile u8 *UART_WR_ADDR;
 extern u8 clear_screen_sequence[4];
+extern u8 hex_char[17];
 
 void enable_uart_rx_interrupt(void); // needed to get read data availabe interrrupt, basically keyboard interrupt
 

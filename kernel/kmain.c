@@ -3,6 +3,7 @@
 #include "../uart/uart.h"
 #include "../interrupts/interrupts.h"
 #include "../process/process.h"
+#include "../misc/csr.h"
 
 void kmain(void) {
     //clear_screen();
@@ -15,9 +16,8 @@ void kmain(void) {
 	reset_interrupts();
 	uart_prints((const u8 *)"Reseted ints...\n");
 	interrupts_init();
-	
+
 	while(1) {
-		
 	}
 	return;
 }
