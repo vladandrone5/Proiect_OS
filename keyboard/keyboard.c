@@ -64,13 +64,13 @@ void subroutine_backspace(void)
     uart_putchar((u8)8);
     uart_putchar((u8)'\0');
 
-    --buffer_edit_idx;
-    --keys_pressed_cnt;
+    buffer_edit_idx-=1*(buffer_edit_idx > 0);
+    keys_pressed_cnt-=1*(keys_pressed_cnt > 0);
 }
 
 void subroutine_left(void)
 {
-    --buffer_edit_idx;
+    buffer_edit_idx-=1*(buffer_edit_idx > 0);
 }
 
 void subroutine_non_special_key(u8 character)

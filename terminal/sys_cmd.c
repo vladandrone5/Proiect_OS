@@ -8,24 +8,33 @@
 
 void _exec(u8 id, u8 priority, const u8 *program)
 {
-    u8 return_code = add_process(id,priority,program);
-
-    if(return_code == ERR_PBF)
+    if(strncmp(program,(const u8 *)"prog1",6))
     {
-        uart_printf((const u8 *)"User has reached the maximum number of active processes!\n");
-        return;
-    }
-
-    if(strncmp(process_context[current_process].process_name,(const u8 *)"prog1",6))
-    {
+        u8 return_code = add_process(id,priority,program);
+        
+        if(return_code == ERR_PBF)
+        {
+            uart_printf((const u8 *)"User has reached the maximum number of active processes!\n");
+            return;
+        }
         process_runtime = 0;
         write_csr_sepc((u32)&prog1);
     }
 
-    if(strncmp(process_context[current_process].process_name,(const u8 *)"prog2",6))
+    else if(strncmp(program,(const u8 *)"prog2",6))
     {
+        u8 return_code = add_process(id,priority,program);
+        if(return_code == ERR_PBF)
+        {
+            uart_printf((const u8 *)"User has reached the maximum number of active processes!\n");
+            return;
+        }
         process_runtime = 0;
         write_csr_sepc((u32)&prog2);
+    }
+    else
+    {
+        uart_printf((const u8 *)"%s does not exist...\n",program);
     }
 }
 
