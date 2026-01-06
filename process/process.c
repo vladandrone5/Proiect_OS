@@ -117,9 +117,14 @@ void schedule(void)
 	{
 		uart_prints((const u8 *)"Current process time slice done!\n");
 		process_runtime = 0;
+
+		uart_printf((const u8 *)"SEPC before save:%x\n",read_csr_sepc());
 		save_context(&process_context[current_process]);
+		uart_printf((const u8 *)"SEPC after  save:%x\n",read_csr_sepc());
 
 		uart_prints((const u8 *)"Saved current process context!\n");
+		
+
 
 		if (current_process < 7 && ((1 << (6 - current_process)) & active_processes))
 		{
@@ -132,11 +137,12 @@ void schedule(void)
 
 		uart_printf((const u8 *)"Next process index:%u\n", current_process);
 
+		uart_printf((const u8 *)"SEPC before load:%x\n",read_csr_sepc());
 		load_context(&process_context[current_process]);
+		uart_printf((const u8 *)"SEPC after  load:%x\n",read_csr_sepc());
 
 		uart_prints((const u8 *)"Loaded next process context!\n");
-
-		write_csr_sepc(process_context[current_process].env.pc);
+		uart_printf((const u8 *)"SEPC after  last print:%x\n",read_csr_sepc());
 		return;
 	}
 	else

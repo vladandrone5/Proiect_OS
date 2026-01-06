@@ -17,7 +17,6 @@ void kmain(void) {
 	uart_prints((const u8 *)"Reseted ints...\n");
 	interrupts_init();
 
-	while(1) {
-	}
+	while(1) {}
 	return;
 }

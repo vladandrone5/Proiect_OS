@@ -62,10 +62,11 @@ void plic_interrupts_init(void)
 
 void interrupts_init(void)
 {
-    setup_timer_int_csrs(FREAKUENCY);
-
     system_interrupts_init(SIE_SEIE_MASK | SIE_STIE_MASK);
+
     plic_interrupts_init();
+
+    setup_timer_int_csrs(FREAKUENCY);
 }
 
 #pragma GCC push_options
@@ -78,7 +79,9 @@ void sti_handler(void)
         kernel_rpc = read_csr_sepc();
     }
 
+    uart_printf((const u8 *)"SEPC before schedule:%x\n",read_csr_sepc());
     schedule(); 
+    uart_printf((const u8 *)"SEPC after  schedule:%x\n",read_csr_sepc());
 
     ++ticks;
     setup_timer_int_csrs(FREAKUENCY);

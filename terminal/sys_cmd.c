@@ -18,7 +18,9 @@ void _exec(u8 id, u8 priority, const u8 *program)
             return;
         }
         process_runtime = 0;
+        uart_printf((const u8 *)"SEPC before prog1:%x\n",read_csr_sepc());
         write_csr_sepc((u32)&prog1);
+        uart_printf((const u8 *)"SEPC after prog1:%x\n",read_csr_sepc());
     }
 
     else if(strncmp(program,(const u8 *)"prog2",6))
