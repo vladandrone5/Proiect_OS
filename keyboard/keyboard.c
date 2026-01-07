@@ -4,6 +4,7 @@
 #include "../string/string.h"
 #include "../process/process.h"
 #include "../terminal/sys_cmd.h"
+#include "../debug/debug.h"
 
 u8 typing_buffer[256] = {0};
 u8 cmd_sent_buffer[256] = {0};

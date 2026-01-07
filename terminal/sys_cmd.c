@@ -10,29 +10,24 @@ void _exec(u8 id, u8 priority, const u8 *program)
 {
     if(strncmp(program,(const u8 *)"prog1",6))
     {
-        u8 return_code = add_process(id,priority,program);
+        u8 return_code = add_process(id,priority,program,(u32)&prog1);
         
         if(return_code == ERR_PBF)
         {
             uart_printf((const u8 *)"User has reached the maximum number of active processes!\n");
             return;
         }
-        process_runtime = 0;
-        uart_printf((const u8 *)"SEPC before prog1:%x\n",read_csr_sepc());
-        write_csr_sepc((u32)&prog1);
-        uart_printf((const u8 *)"SEPC after prog1:%x\n",read_csr_sepc());
     }
 
     else if(strncmp(program,(const u8 *)"prog2",6))
     {
-        u8 return_code = add_process(id,priority,program);
+        u8 return_code = add_process(id,priority,program,(u32)&prog2);
+
         if(return_code == ERR_PBF)
         {
             uart_printf((const u8 *)"User has reached the maximum number of active processes!\n");
             return;
         }
-        process_runtime = 0;
-        write_csr_sepc((u32)&prog2);
     }
     else
     {

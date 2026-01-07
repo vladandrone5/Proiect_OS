@@ -2,6 +2,7 @@
 #include "../string/string.h"
 #include "../misc/csr.h"
 #include "../uart/uart.h"
+#include "../debug/debug.h"
 
 u8 process_finished_running = 0;
 u8 last_used_id = 0;
@@ -11,6 +12,8 @@ u8 process_runtime = 0;
 process process_context[8];
 u32 kernel_rpc = 0;
 
+void set_schedule_ra(void);
+void switch_sp(u32 new_sp);
 u8 save_context(process *active_process);
 u8 load_context(process *active_process);
 
@@ -49,6 +52,13 @@ void initialize_processes(void)
 		{
 			process_context[pr].env.x[reg_i] = 0;
 		}
+
+		process_context[pr].env.x[sp] = (u32)&process_context[pr].stack[PROCESS_STACK_SIZE];
+
+		for(u32 sp = 0; sp < PROCESS_STACK_SIZE; sp++)
+		{
+			process_context[pr].stack[sp] = 0;
+		}
 	}
 }
 
@@ -60,7 +70,7 @@ void process_done(void)
 	__asm__ volatile("wfi");
 }
 
-u8 add_process(u8 id, u8 priority, const u8 *process_name)
+u8 add_process(u8 id, u8 priority, const u8 *process_name, u32 program_location)
 {
 	// check if id used(shouldnt be), if there is enough space for a new process
 	if (active_processes == 255)
@@ -71,7 +81,7 @@ u8 add_process(u8 id, u8 priority, const u8 *process_name)
 	u8 return_value = 0;
 	for (u8 pr = 0; pr < 8; pr++)
 	{
-		if (process_context[pr].state == PROCESS_ACTIVE && process_context[pr].process_id == id)
+		if ((process_context[pr].state == PROCESS_ACTIVE || process_context[pr].state == PROCESS_WAITING ) && process_context[pr].process_id == id)
 		{
 			return_value = ERR_IDU;
 			break;
@@ -96,17 +106,17 @@ u8 add_process(u8 id, u8 priority, const u8 *process_name)
 	current_process = shifts;
 	process *active_process = &process_context[current_process];
 
-	active_process->state = PROCESS_ACTIVE;
+	active_process->state = PROCESS_INACTIVE;
 	active_process->process_id = id;
 	strncpy(active_process->process_name, process_name, 128);
 	active_process->time_slice = priority;
+	active_process->env.pc = program_location;
 
 	return return_value;
 }
 
 void schedule(void)
 {
-	// uart_printf((const u8 *)"Process runtime:%u\n",process_runtime);
 	if (active_processes == 0)
 	{
 		write_csr_sepc(kernel_rpc);
@@ -115,17 +125,10 @@ void schedule(void)
 
 	if (process_runtime == process_context[current_process].time_slice)
 	{
-		uart_prints((const u8 *)"Current process time slice done!\n");
 		process_runtime = 0;
 
-		uart_printf((const u8 *)"SEPC before save:%x\n",read_csr_sepc());
 		save_context(&process_context[current_process]);
-		uart_printf((const u8 *)"SEPC after  save:%x\n",read_csr_sepc());
-
-		uart_prints((const u8 *)"Saved current process context!\n");
 		
-
-
 		if (current_process < 7 && ((1 << (6 - current_process)) & active_processes))
 		{
 			current_process++;
@@ -135,14 +138,18 @@ void schedule(void)
 			current_process = 0;
 		}
 
-		uart_printf((const u8 *)"Next process index:%u\n", current_process);
+		if(process_context[current_process].state == PROCESS_WAITING)
+		{
+			load_context(&process_context[current_process]);
+		}
+		else
+		{
+			switch_sp(process_context[current_process].env.x[sp]);
+			write_csr_sepc(process_context[current_process].env.pc);
+			process_context[current_process].state = PROCESS_ACTIVE;
 
-		uart_printf((const u8 *)"SEPC before load:%x\n",read_csr_sepc());
-		load_context(&process_context[current_process]);
-		uart_printf((const u8 *)"SEPC after  load:%x\n",read_csr_sepc());
-
-		uart_prints((const u8 *)"Loaded next process context!\n");
-		uart_printf((const u8 *)"SEPC after  last print:%x\n",read_csr_sepc());
+			__asm__ volatile("sret");
+		}
 		return;
 	}
 	else
@@ -166,6 +173,14 @@ void schedule(void)
 	}
 }
 
+void switch_sp(u32 new_sp)
+{
+	__asm__ volatile("mv sp,%0"
+					:
+					:"r"(new_sp)
+					:
+					);
+}
 u8 save_context(process *active_process)
 {
 	if (active_process->state == PROCESS_INACTIVE)
@@ -181,15 +196,17 @@ u8 save_context(process *active_process)
 
 	caller_process_stack_frame = (u32 *)(*(caller_process_stack_frame - 2));
 
-	// -0x50 needed for the actual sp value after saving temp registers (ra,s0,a0-a7,t0-t6)
-	__asm__ volatile("lw %0,-0x4(%9) ;"
-					 "addi %1,%9,-0x50 ;"
+	//uart_printf((const u8 *)"Black magic SP before save context:%x\n",(u32)caller_process_stack_frame);
+
+	// -0x20 needed for the actual sp inside load func
+	__asm__ volatile("mv %0,ra;"
+					 "addi %1,s0, -0x20 ;" 
 					 "mv %2,gp ;"
 					 "mv %3,tp ;"
 					 "lw %4,-0x8(%9) ;"
 					 "lw %5,-0xc(%9) ;"
 					 "lw %6,-0x10(%9) ;"
-					 "lw %7,-0x14(%9) ;"
+					 "mv %7,s0 ;"
 					 "mv %8,s1 ;"
 
 					 : "=r"(process_context[current_process].env.x[ra]),
@@ -244,6 +261,7 @@ u8 save_context(process *active_process)
 		:);
 
 	process_context[current_process].env.pc = read_csr_sepc();
+	active_process->state = PROCESS_WAITING;
 
 	return 0;
 }
@@ -254,6 +272,10 @@ u8 load_context(process *active_process)
 	{
 		return ERR_PRI;
 	}
+
+
+	//move_sp_to_temp();
+	//uart_printf((const u8 *)"SP after entering load context:%x\n",read_a0());
 
 	__asm__ volatile("mv sp,%0 ;"
 					 "mv gp,%1 ;"
@@ -286,9 +308,11 @@ u8 load_context(process *active_process)
 		:);
 
 	
-	
+	//uart_printf((const u8 *)"SP after load context:%x\n",process_context[current_process].env.x[sp]);
 
 	write_csr_sepc(process_context[current_process].env.pc);
+
+	active_process->state = PROCESS_ACTIVE;
 
 	return 0;
 }

@@ -5,6 +5,7 @@
 #include "../plic/plic.h"
 #include "../keyboard/keyboard.h"
 #include "../process/process.h"
+#include "../debug/debug.h"
 
 void stvec_idt(void)
 {
@@ -79,12 +80,10 @@ void sti_handler(void)
         kernel_rpc = read_csr_sepc();
     }
 
-    uart_printf((const u8 *)"SEPC before schedule:%x\n",read_csr_sepc());
-    schedule(); 
-    uart_printf((const u8 *)"SEPC after  schedule:%x\n",read_csr_sepc());
-
     ++ticks;
     setup_timer_int_csrs(FREAKUENCY);
+
+    schedule(); 
 }
 
 #pragma GCC pop_options

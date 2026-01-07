@@ -7,6 +7,8 @@
 #define ERR_PBF 2 // no more space to create process (process buffer full)
 #define ERR_IDU 3 // id already used
 
+#define PROCESS_STACK_SIZE (u32)(1000000/4)
+
 typedef enum
 {
     zero,
@@ -24,7 +26,8 @@ typedef enum
 typedef enum
 { // MAYBE ADD PROCESS WAITING AND MAYBE PROCESS DEAD
     PROCESS_INACTIVE,
-    PROCESS_ACTIVE
+    PROCESS_ACTIVE,
+    PROCESS_WAITING
 }PROCESS_STATE;
 
 typedef struct
@@ -35,6 +38,7 @@ typedef struct
 
 typedef struct process_t
 {
+    u32 stack[PROCESS_STACK_SIZE];
     regs env; 
     u8 process_name[128];
     PROCESS_STATE state;
@@ -49,12 +53,14 @@ extern u8 process_runtime; /* used to await priority (n) timer interrupts for ea
 extern process process_context[8]; /* hold data for all active processes */
 extern u32 kernel_rpc;
 
+void __attribute__((naked)) switch_sp(u32 new_sp);
+
 u8 get_new_id(u8 id);
 void initialize_processes(void);
 void process_done(void);
 u8 save_context(process *active_process);
 u8 load_context(process *active_process);
-u8 add_process(u8 id,u8 priority,const u8 *process_name);
+u8 add_process(u8 id,u8 priority,const u8 *process_name,u32 program_location);
 u8 remove_process(process *active_process);
 void schedule(void);
 
