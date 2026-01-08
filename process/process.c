@@ -12,7 +12,6 @@ u8 process_runtime = 0;
 process process_context[8];
 u32 kernel_rpc = 0;
 
-void set_schedule_ra(void);
 void switch_sp(u32 new_sp);
 u8 save_context(process *active_process);
 u8 load_context(process *active_process);
@@ -45,7 +44,7 @@ void initialize_processes(void)
 	{
 		process_context[pr].process_id = 0;
 		process_context[pr].time_slice = 0;
-		process_context[pr].state = PROCESS_INACTIVE;
+		process_context[pr].state = PROCESS_DEAD;
 		strncpy(process_context[pr].process_name, (const u8 *)"", 1);
 
 		for (u8 reg_i = 0; reg_i < 32; reg_i++)
@@ -55,9 +54,9 @@ void initialize_processes(void)
 
 		process_context[pr].env.x[sp] = (u32)&process_context[pr].stack[PROCESS_STACK_SIZE];
 
-		for(u32 sp = 0; sp < PROCESS_STACK_SIZE; sp++)
+		for(u32 sp_idx = 0; sp_idx < PROCESS_STACK_SIZE; sp_idx++)
 		{
-			process_context[pr].stack[sp] = 0;
+			process_context[pr].stack[sp_idx] = 0;
 		}
 	}
 }
@@ -103,8 +102,7 @@ u8 add_process(u8 id, u8 priority, const u8 *process_name, u32 program_location)
 		}
 	}
 
-	current_process = shifts;
-	process *active_process = &process_context[current_process];
+	process *active_process = &process_context[shifts];
 
 	active_process->state = PROCESS_INACTIVE;
 	active_process->process_id = id;
@@ -123,27 +121,40 @@ void schedule(void)
 		return;
 	}
 
-	if (process_runtime == process_context[current_process].time_slice)
+	u8 new_process = 0;
+
+	if(process_runtime == process_context[current_process].time_slice)
 	{
 		process_runtime = 0;
 
-		save_context(&process_context[current_process]);
-		
-		if (current_process < 7 && ((1 << (6 - current_process)) & active_processes))
+		if(current_process < 7 && ((1 << (6 - current_process)) & active_processes))
 		{
-			current_process++;
+			new_process = current_process+1;
 		}
 		else
 		{
-			current_process = 0;
+			new_process = 0;
 		}
 
+		if((current_process == new_process) && process_context[current_process].state == PROCESS_ACTIVE)
+		{
+			return;
+		}
+
+		uart_printf((const u8 *)"Current process:%u\tNew process:%u\tactive processes:%u\t%u\n",current_process,new_process,active_processes,1<<6);
+		save_context(&process_context[current_process]);
+		uart_prints((const u8 *)"after save context...\n");
+
+		current_process = new_process;
+		
+		
 		if(process_context[current_process].state == PROCESS_WAITING)
 		{
 			load_context(&process_context[current_process]);
 		}
 		else
 		{
+			uart_prints((const u8 *)"Starting new process...\n");
 			switch_sp(process_context[current_process].env.x[sp]);
 			write_csr_sepc(process_context[current_process].env.pc);
 			process_context[current_process].state = PROCESS_ACTIVE;
@@ -187,6 +198,8 @@ u8 save_context(process *active_process)
 	{
 		return ERR_PRI;
 	}
+
+	uart_prints((const u8 *)"saving context...\n");
 
 	u32 *caller_process_stack_frame = 0; // literally black magic
 	__asm__ volatile("mv %0, s0"
@@ -311,7 +324,6 @@ u8 load_context(process *active_process)
 	//uart_printf((const u8 *)"SP after load context:%x\n",process_context[current_process].env.x[sp]);
 
 	write_csr_sepc(process_context[current_process].env.pc);
-
 	active_process->state = PROCESS_ACTIVE;
 
 	return 0;

@@ -44,7 +44,7 @@ void _ps(void)
 
     for(u8 pr=0;pr<8;pr++)
     {
-        if(process_context[pr].state == PROCESS_ACTIVE)
+        if(process_context[pr].state != PROCESS_DEAD && process_context[pr].state != PROCESS_INACTIVE)
         {
             uart_printf((const u8 *)"ID:%u\tPNAME:%s\n",process_context[pr].process_id, process_context[pr].process_name);
         }

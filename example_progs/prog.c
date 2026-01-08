@@ -4,8 +4,7 @@
 
 void prog1(void)
 {
-    u32 wait = 0;
-    uart_printf((const u8 *)"SEPC addr:%x\n",kernel_rpc);
+    u16 wait = 0;
     while(1)
     {
         if(wait == 0)
