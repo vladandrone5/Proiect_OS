@@ -32,7 +32,6 @@ void uart_prints(const u8 *string)
     {
        uart_putchar(*string++);
     }
-    uart_putchar((u8)'\r');
     return;
 }
 

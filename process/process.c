@@ -97,6 +97,7 @@ u8 add_process(u8 id, u8 priority, const u8 *process_name, u32 program_location)
 	{
 		if (!(mask & active_processes))
 		{
+			uart_printf((const u8 *)"Mask:%u\n",mask);
 			active_processes |= mask;
 			break;
 		}
@@ -150,7 +151,9 @@ void schedule(void)
 		
 		if(process_context[current_process].state == PROCESS_WAITING)
 		{
+			uart_prints((const u8 *)"Before load context...\n");
 			load_context(&process_context[current_process]);
+			uart_prints((const u8 *)"After load context...\n");
 		}
 		else
 		{
@@ -287,8 +290,8 @@ u8 load_context(process *active_process)
 	}
 
 
-	//move_sp_to_temp();
-	//uart_printf((const u8 *)"SP after entering load context:%x\n",read_a0());
+	move_sp_to_temp();
+	uart_printf((const u8 *)"SP after entering load context:%x\n",read_a0());
 
 	__asm__ volatile("mv sp,%0 ;"
 					 "mv gp,%1 ;"
@@ -321,7 +324,7 @@ u8 load_context(process *active_process)
 		:);
 
 	
-	//uart_printf((const u8 *)"SP after load context:%x\n",process_context[current_process].env.x[sp]);
+	uart_printf((const u8 *)"SP after load context:%x\n",process_context[current_process].env.x[sp]);
 
 	write_csr_sepc(process_context[current_process].env.pc);
 	active_process->state = PROCESS_ACTIVE;

@@ -80,10 +80,10 @@ void sti_handler(void)
         kernel_rpc = read_csr_sepc();
     }
 
+    schedule(); 
+    
     ++ticks;
     setup_timer_int_csrs(FREAKUENCY);
-
-    schedule(); 
 }
 
 #pragma GCC pop_options
