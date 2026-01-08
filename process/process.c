@@ -142,22 +142,27 @@ void schedule(void)
 			return;
 		}
 
-		uart_printf((const u8 *)"Current process:%u\tNew process:%u\tactive processes:%u\t%u\n",current_process,new_process,active_processes,1<<6);
+		//uart_printf((const u8 *)"Current process:%u\tNew process:%u\tactive processes:%u\t%u\n",current_process,new_process,active_processes,1<<6);
+		uart_printf((const u8 *)"");
 		save_context(&process_context[current_process]);
-		uart_prints((const u8 *)"after save context...\n");
+		//uart_prints((const u8 *)"after save context...\n");
+		uart_prints((const u8 *)"");
 
 		current_process = new_process;
 		
 		
 		if(process_context[current_process].state == PROCESS_WAITING)
 		{
-			uart_prints((const u8 *)"Before load context...\n");
+			//uart_prints((const u8 *)"Before load context...\n");
+			uart_prints((const u8 *)"");
 			load_context(&process_context[current_process]);
-			uart_prints((const u8 *)"After load context...\n");
+			//uart_prints((const u8 *)"After load context...\n");
+			uart_prints((const u8 *)"");
 		}
 		else
 		{
-			uart_prints((const u8 *)"Starting new process...\n");
+			//uart_prints((const u8 *)"Starting new process...\n");
+			uart_prints((const u8 *)"");
 			switch_sp(process_context[current_process].env.x[sp]);
 			write_csr_sepc(process_context[current_process].env.pc);
 			process_context[current_process].state = PROCESS_ACTIVE;
@@ -202,7 +207,9 @@ u8 save_context(process *active_process)
 		return ERR_PRI;
 	}
 
-	uart_prints((const u8 *)"saving context...\n");
+	//uart_prints((const u8 *)"saving context...\n");
+	uart_prints((const u8 *)"");
+
 
 	u32 *caller_process_stack_frame = 0; // literally black magic
 	__asm__ volatile("mv %0, s0"
@@ -289,9 +296,9 @@ u8 load_context(process *active_process)
 		return ERR_PRI;
 	}
 
-
 	move_sp_to_temp();
-	uart_printf((const u8 *)"SP after entering load context:%x\n",read_a0());
+	//uart_printf((const u8 *)"SP after entering load context:%x\n",read_a0());
+	uart_printf((const u8 *)"");
 
 	__asm__ volatile("mv sp,%0 ;"
 					 "mv gp,%1 ;"
@@ -324,7 +331,8 @@ u8 load_context(process *active_process)
 		:);
 
 	
-	uart_printf((const u8 *)"SP after load context:%x\n",process_context[current_process].env.x[sp]);
+	//uart_printf((const u8 *)"SP after load context:%x\n",process_context[current_process].env.x[sp]);
+	uart_printf((const u8 *)"");
 
 	write_csr_sepc(process_context[current_process].env.pc);
 	active_process->state = PROCESS_ACTIVE;

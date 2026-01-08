@@ -4,10 +4,10 @@
 
 void prog1(void)
 {
-    u16 wait = 0;
+    u32 wait = 0;
     while(1)
     {
-        if(wait == 0)
+        if(wait%(2<<16) == 0)
             uart_printf((const u8 *)"Ping from program 1\n");
         ++wait;
     }
@@ -15,10 +15,10 @@ void prog1(void)
 
 void prog2(void)
 {
-    u16 wait = 0;
+    u32 wait = 0;
     while(1)
     {
-        if(wait == 0)
+        if(wait%(2<<16) == 0)
             uart_printf((const u8 *)"Ping from program 2\n");
         ++wait;
     }

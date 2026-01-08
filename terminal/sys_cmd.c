@@ -37,7 +37,9 @@ void _exec(u8 id, u8 priority, const u8 *program)
 
 void _ps(void)
 {
-    uart_printf((const u8 *)"CPU time: %u ticks\n",(u32)ticks);
+    uart_printf((const u8 *)"\n##############################\n#                            #\n#       PROCESS  STATE       #\n#                            #\n##############################\n\n");
+    // PROCESS STATE 
+    uart_printf((const u8 *)"| CPU TIME: <%u> ticks |\n\n",(u32)ticks);
 
     if(active_processes==0)
         return;
@@ -46,7 +48,8 @@ void _ps(void)
     {
         if(process_context[pr].state != PROCESS_DEAD && process_context[pr].state != PROCESS_INACTIVE)
         {
-            uart_printf((const u8 *)"ID:%u\tPNAME:%s\n",process_context[pr].process_id, process_context[pr].process_name);
+            uart_printf((const u8 *)"> ID:%u\tPNAME:%s\n",process_context[pr].process_id, process_context[pr].process_name);
         }
     }
+    uart_prints((const u8 *)"\n");
 }
