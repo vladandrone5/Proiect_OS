@@ -4,6 +4,7 @@
 #include "../interrupts/interrupts.h"
 #include "../process/process.h"
 #include "../misc/csr.h"
+#include "../terminal/sys_cmd.h"
 
 void kmain(void) {
     //clear_screen();
@@ -17,6 +18,7 @@ void kmain(void) {
 	uart_prints((const u8 *)"Reseted ints...\n");
 	interrupts_init();
 
+	_shell();
 	while(1) {}
 	return;
 }

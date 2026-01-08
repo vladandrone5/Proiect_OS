@@ -30,9 +30,10 @@ void uart_prints(const u8 *string)
 {
     while(*string)
     {
+       if(*string == '\n')
+            uart_putchar('\r');
        uart_putchar(*string++);
     }
-    uart_putchar((u8)'\r');
     return;
 }
 

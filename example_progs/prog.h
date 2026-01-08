@@ -5,5 +5,6 @@
 
 void prog1(void);
 void prog2(void);
+void show_ticks(void);
 
 #endif

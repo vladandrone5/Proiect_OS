@@ -42,28 +42,41 @@ void subroutine_enter(void)
     keys_pressed_cnt = 0;
     buffer_edit_idx = 0;
 
-    if(strncmp(cmd_sent_buffer,(const u8 *)"exec ",5))
+    if((strncmp(cmd_sent_buffer,(const u8 *)"exec",4) && *(cmd_sent_buffer+4) == '\0') || strncmp(cmd_sent_buffer,(const u8 *)"exec ",5))
     {
-        uart_prints((const u8 *)"Entered exec subroutine!\n");
         _exec(++last_used_id, 10, cmd_sent_buffer+5);
-        return;
     }
-    else if(strncmp(cmd_sent_buffer,(const u8 *)"ps",2) && *(cmd_sent_buffer+2) == '\0')
+    else if((strncmp(cmd_sent_buffer,(const u8 *)"kill",4) && *(cmd_sent_buffer+4) == '\0') || strncmp(cmd_sent_buffer,(const u8 *)"kill ",5))
+    {
+        _kill(numerical_to_data(*(cmd_sent_buffer+5)));
+    }
+    else if((strncmp(cmd_sent_buffer,(const u8 *)"ps",2) && *(cmd_sent_buffer+2) == '\0') || strncmp(cmd_sent_buffer,(const u8 *)"ps ",3))
     {
         _ps();
         return;
     }
+    else if((strncmp(cmd_sent_buffer,(const u8 *)"clear",5) && *(cmd_sent_buffer+5) == '\0') || strncmp(cmd_sent_buffer,(const u8 *)"clear ",6))
+    {
+        _clear();
+    }
+    else
+    {
+        uart_printf((const u8 *)"'%s' is not a valid command!\n",cmd_sent_buffer);
+    }
+    _shell();
+
+   return;
 }
 
 void subroutine_backspace(void)
 {
-    uart_putchar((u8)8);
-    uart_putchar((u8)' ');
-
-    //truncate_buffer();
-
-    uart_putchar((u8)8);
-    uart_putchar((u8)'\0');
+    if(keys_pressed_cnt>0)
+    {
+        uart_putchar((u8)8);
+        uart_putchar((u8)' ');
+        uart_putchar((u8)8);
+        uart_putchar((u8)'\0');
+    }
 
     buffer_edit_idx-=1*(buffer_edit_idx > 0);
     keys_pressed_cnt-=1*(keys_pressed_cnt > 0);

@@ -62,7 +62,7 @@ void process_done(void);
 u8 save_context(process *active_process);
 u8 load_context(process *active_process);
 u8 add_process(u8 id,u8 priority,const u8 *process_name,u32 program_location);
-u8 remove_process(process *active_process);
+u8 remove_process(void);
 void schedule(void);
 
 #endif

@@ -3,6 +3,7 @@
 #include "../misc/csr.h"
 #include "../uart/uart.h"
 #include "../debug/debug.h"
+#include "../memory/memory.h"
 
 u8 process_finished_running = 0;
 u8 last_used_id = 0;
@@ -16,6 +17,30 @@ void switch_sp(u32 new_sp);
 u8 save_context(process *active_process);
 u8 load_context(process *active_process);
 
+u8 make_mask_portion(u8 no_bits)
+{
+	u8 mask = 0;
+
+	for(;no_bits>0;no_bits--)
+	{
+		mask>>=1;
+		mask|=(1<<7);
+	}
+
+	return mask;
+
+}
+
+void reset_stack(process *active_process)
+{
+	for(u32 sp_idx = 0;sp_idx<PROCESS_STACK_SIZE;sp_idx++)
+	{
+		active_process->stack[sp_idx] = 0;
+	}
+
+	active_process->env.x[sp] = (u32)&active_process->stack[PROCESS_STACK_SIZE];
+}
+
 u8 get_new_id(u8 id) /* gets new id if the curretn one is used */
 {
 	u8 new_id_used = 0;
@@ -24,7 +49,7 @@ u8 get_new_id(u8 id) /* gets new id if the curretn one is used */
 		new_id_used = 0;
 		for (u8 pr = 0; pr < 8; pr++)
 		{
-			if (process_context[pr].state == PROCESS_ACTIVE && process_context[pr].process_id == id)
+			if (((process_context[pr].state == PROCESS_ACTIVE) || (process_context[pr].state == PROCESS_WAITING)) && process_context[pr].process_id == id)
 			{
 				new_id_used = 1;
 				break;
@@ -97,7 +122,6 @@ u8 add_process(u8 id, u8 priority, const u8 *process_name, u32 program_location)
 	{
 		if (!(mask & active_processes))
 		{
-			uart_printf((const u8 *)"Mask:%u\n",mask);
 			active_processes |= mask;
 			break;
 		}
@@ -115,7 +139,8 @@ u8 add_process(u8 id, u8 priority, const u8 *process_name, u32 program_location)
 }
 
 void schedule(void)
-{
+{   
+	// refactor function after project is done so that it uses assembly function for switching context
 	if (active_processes == 0)
 	{
 		write_csr_sepc(kernel_rpc);
@@ -143,26 +168,23 @@ void schedule(void)
 		}
 
 		//uart_printf((const u8 *)"Current process:%u\tNew process:%u\tactive processes:%u\t%u\n",current_process,new_process,active_processes,1<<6);
-		uart_printf((const u8 *)"");
+		uart_printf((const u8 *)"\0\0\0\0\0\0\0\0\0\0");
 		save_context(&process_context[current_process]);
 		//uart_prints((const u8 *)"after save context...\n");
-		uart_prints((const u8 *)"");
+		uart_prints((const u8 *)"\0\0\0\0\0\0\0\0\0\0\0");
 
 		current_process = new_process;
 		
 		
 		if(process_context[current_process].state == PROCESS_WAITING)
 		{
-			//uart_prints((const u8 *)"Before load context...\n");
-			uart_prints((const u8 *)"");
+			uart_prints((const u8 *)"\0\0\0\0\0\0\0\0\0\0\0");
 			load_context(&process_context[current_process]);
-			//uart_prints((const u8 *)"After load context...\n");
-			uart_prints((const u8 *)"");
+			uart_prints((const u8 *)"\0\0\0\0\0\0\0\0\0\0\0");
 		}
 		else
 		{
-			//uart_prints((const u8 *)"Starting new process...\n");
-			uart_prints((const u8 *)"");
+			uart_prints((const u8 *)"\0\0\0\0\0\0\0\0\0");
 			switch_sp(process_context[current_process].env.x[sp]);
 			write_csr_sepc(process_context[current_process].env.pc);
 			process_context[current_process].state = PROCESS_ACTIVE;
@@ -192,6 +214,53 @@ void schedule(void)
 	}
 }
 
+u8 remove_process(void)
+{
+	if(active_processes == 0)
+	{
+		return 0;
+	}
+
+	process_runtime = 0;
+
+
+	reset_stack(&process_context[current_process]);
+	
+	if(current_process == 0)
+	{
+		active_processes<<=1;
+
+	}
+
+	else if(current_process == 7)
+	{
+		active_processes&=254;
+
+	}
+	else
+	{
+		u8 fhmask = make_mask_portion(current_process);
+		u8 shmask = make_mask_portion(7-current_process)>>(current_process+1);
+		active_processes = fhmask | ((shmask&active_processes)<<1);
+	}
+
+	for(u8 pr=current_process; pr <7; pr++)
+	{
+		memcpy((u8 *)&process_context[pr], (u8 *)&process_context[pr+1],sizeof(process));
+	}
+
+	// other removel stuff
+	process *active_process = &process_context[7];
+	active_process->state = PROCESS_DEAD;
+	active_process->time_slice = 0;
+	active_process->process_id = 0;
+	strncpy(active_process->process_name,(const u8 *)"",1);
+
+	load_context(&process_context[current_process]);
+
+	return 0;
+}
+
 void switch_sp(u32 new_sp)
 {
 	__asm__ volatile("mv sp,%0"
@@ -200,6 +269,7 @@ void switch_sp(u32 new_sp)
 					:
 					);
 }
+
 u8 save_context(process *active_process)
 {
 	if (active_process->state == PROCESS_INACTIVE)
@@ -207,8 +277,7 @@ u8 save_context(process *active_process)
 		return ERR_PRI;
 	}
 
-	//uart_prints((const u8 *)"saving context...\n");
-	uart_prints((const u8 *)"");
+	uart_prints((const u8 *)"\0\0\0\0\0\0\0\0");
 
 
 	u32 *caller_process_stack_frame = 0; // literally black magic
@@ -218,8 +287,6 @@ u8 save_context(process *active_process)
 					 :);
 
 	caller_process_stack_frame = (u32 *)(*(caller_process_stack_frame - 2));
-
-	//uart_printf((const u8 *)"Black magic SP before save context:%x\n",(u32)caller_process_stack_frame);
 
 	// -0x20 needed for the actual sp inside load func
 	__asm__ volatile("mv %0,ra;"
@@ -296,9 +363,7 @@ u8 load_context(process *active_process)
 		return ERR_PRI;
 	}
 
-	move_sp_to_temp();
-	//uart_printf((const u8 *)"SP after entering load context:%x\n",read_a0());
-	uart_printf((const u8 *)"");
+	uart_printf((const u8 *)"\0\0\0\0\0\0\0\0\0");
 
 	__asm__ volatile("mv sp,%0 ;"
 					 "mv gp,%1 ;"
@@ -331,8 +396,7 @@ u8 load_context(process *active_process)
 		:);
 
 	
-	//uart_printf((const u8 *)"SP after load context:%x\n",process_context[current_process].env.x[sp]);
-	uart_printf((const u8 *)"");
+	uart_printf((const u8 *)"\0\0\0\0\0\0\0\0\0\0\0");
 
 	write_csr_sepc(process_context[current_process].env.pc);
 	active_process->state = PROCESS_ACTIVE;

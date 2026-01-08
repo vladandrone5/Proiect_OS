@@ -1,5 +1,11 @@
 #include "string.h"
 
+u8 numerical_to_data(u8 num_char)
+{
+    // check if its a numer as a char
+    return num_char-'0';
+}
+
 u32 strncpy(u8 *destination, const u8 *source, const u32 buff_len)
 {
     u32 chars_copied = 0;

@@ -7,7 +7,7 @@
 // volatile u32 *MTIMECMP_ADDR = (u32 *)(CLINT_ADDR + MTIMECMP_OFFSET);
 
 u64 timer = 0;
-interrupt_event_counter ticks = 0;
+tint_event_counter ticks = 0;
 
 void get_mtime(void)
 {
