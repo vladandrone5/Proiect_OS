@@ -27,11 +27,14 @@ void prog2(void)
 
 void show_ticks(void)
 {
-    u16 wait = 1;
+    u16 wait = 0;
     uart_prints((const u8 *)"\n");
-    while(wait!=0){
-        uart_printf((const u8 *)"Ticks:%u",(u32)ticks);
-        uart_putchar((u8)'\r');
+    while(1){
+        if(wait==0)
+        {
+            uart_putchar((u8)'\r');
+            uart_printf((const u8 *)"Ticks:%u",(u32)ticks);
+        }
         ++wait;
     }
 }

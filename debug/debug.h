@@ -31,4 +31,5 @@ static u32 read_s0(void)
                     );
     return s0;
 }
+
 #endif

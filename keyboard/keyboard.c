@@ -53,7 +53,6 @@ void subroutine_enter(void)
     else if((strncmp(cmd_sent_buffer,(const u8 *)"ps",2) && *(cmd_sent_buffer+2) == '\0') || strncmp(cmd_sent_buffer,(const u8 *)"ps ",3))
     {
         _ps();
-        return;
     }
     else if((strncmp(cmd_sent_buffer,(const u8 *)"clear",5) && *(cmd_sent_buffer+5) == '\0') || strncmp(cmd_sent_buffer,(const u8 *)"clear ",6))
     {

@@ -33,10 +33,10 @@ u8 make_mask_portion(u8 no_bits)
 
 void reset_stack(process *active_process)
 {
-	for(u32 sp_idx = 0;sp_idx<PROCESS_STACK_SIZE;sp_idx++)
-	{
-		active_process->stack[sp_idx] = 0;
-	}
+	// for(u32 sp_idx = 0;sp_idx<PROCESS_STACK_SIZE;sp_idx++)
+	// {
+	// 	active_process->stack[sp_idx] = 0;
+	// }
 
 	active_process->env.x[sp] = (u32)&active_process->stack[PROCESS_STACK_SIZE];
 }
@@ -221,42 +221,50 @@ u8 remove_process(void)
 		return 0;
 	}
 
-	process_runtime = 0;
+	process_runtime = process_context[current_process].time_slice;
 
-
-	reset_stack(&process_context[current_process]);
-	
 	if(current_process == 0)
 	{
 		active_processes<<=1;
-
 	}
 
 	else if(current_process == 7)
 	{
 		active_processes&=254;
-
 	}
 	else
 	{
 		u8 fhmask = make_mask_portion(current_process);
 		u8 shmask = make_mask_portion(7-current_process)>>(current_process+1);
 		active_processes = fhmask | ((shmask&active_processes)<<1);
+		uart_printf((const u8 *)"Fmask:%u\tSmask:%u\tActive_processes:%u\n",fhmask,shmask,active_processes);
 	}
 
+	uart_printf((const u8 *)"Active processes:%u\n",active_processes);
+
+	
+	uart_prints((const u8 *)"before Reset stack\n");
+	//reset_stack(&process_context[current_process]);
+	uart_prints((const u8 *)"Reset stack\n");
+	
 	for(u8 pr=current_process; pr <7; pr++)
 	{
 		memcpy((u8 *)&process_context[pr], (u8 *)&process_context[pr+1],sizeof(process));
 	}
 
+	uart_prints((const u8 *)"Mem copied. Process buffer truncated\n");
+
 	// other removel stuff
 	process *active_process = &process_context[7];
 	active_process->state = PROCESS_DEAD;
-	active_process->time_slice = 0;
 	active_process->process_id = 0;
 	strncpy(active_process->process_name,(const u8 *)"",1);
 
-	load_context(&process_context[current_process]);
+	uart_prints((const u8 *)"Other stuff removeal done\n");
+
+	//load_context(&process_context[current_process]);
+
+	uart_prints((const u8 *)"Loaded next program context\n");
 
 	return 0;
 }
