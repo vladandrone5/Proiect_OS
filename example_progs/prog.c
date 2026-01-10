@@ -2,6 +2,7 @@
 #include "prog.h"
 #include "../process/process.h"
 #include "../timer/timer.h"
+#include "../syscall/syscall.h"
 
 void prog1(void)
 {
@@ -11,6 +12,7 @@ void prog1(void)
         if(wait%(2<<25) == 0)
            uart_printf((const u8 *)"Ping from program 1\n");
         ++wait;
+        sys_yield();
     }
 }
 
@@ -28,9 +30,10 @@ void prog2(void)
 void show_ticks(void)
 {
     u16 wait = 0;
-    uart_prints((const u8 *)"\n");
+    uart_prints((const u8 *)"\nShowing real time timer interrupt 'ticks'\n");
+    sys_yield();
     while(1){
-        if(wait==0)
+        if(wait == 0)
         {
             uart_putchar((u8)'\r');
             uart_printf((const u8 *)"Ticks:%u",(u32)ticks);

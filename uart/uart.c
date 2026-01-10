@@ -1,4 +1,5 @@
 #include "uart.h"
+#include "../syscall/syscall.h"
 #include <stdarg.h>
 
 volatile u8 *UART_WR_ADDR = (u8 *)UART_ADDR;
@@ -22,7 +23,11 @@ void clear_screen(void)
 
 void uart_putchar(const u8 c)
 {
-    *UART_WR_ADDR=c;
+    // #ifdef __KERNEL_MODE__
+        *UART_WR_ADDR = c;
+    // #else
+    //     syscall(1,(u32)&c,1,0,0,0,0,1);
+    // #endif
     return;
 }
 

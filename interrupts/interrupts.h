@@ -3,8 +3,12 @@
 
 #include "../misc/types.h"
 
+#define USER_MODE_EXECPTION 9
+
+void syscall_handler(void) __attribute__ ((interrupt("supervisor")));
 void sti_handler(void) __attribute__ ((interrupt("supervisor")));
 void seie_handler(void) __attribute__ ((interrupt("supervisor")));
+
 
 void setup_timer_int_csrs(u32 os_freq);
 void reset_system_interrupts(void);

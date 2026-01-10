@@ -32,6 +32,7 @@ $CC $ARCH -c bootloader/bootloader.S -o ../build/bootloader.o
 $CC $ARCH $COMMON_FLAGS -c uart/uart.c -o ../build/uart.o
 $CC $ARCH $COMMON_FLAGS -c timer/timer.c -o ../build/timer.o
 $CC $ARCH $COMMON_FLAGS -c memory/memory.c -o ../build/memory.o
+$CC $ARCH $COMMON_FLAGS -c syscall/syscall.c -o ../build/syscall.o
 $CC $ARCH $COMMON_FLAGS -c plic/plic.c -o ../build/plic.o
 $CC $ARCH $COMMON_FLAGS -c string/string.c -o ../build/string.o
 $CC $ARCH $COMMON_FLAGS -c process/load_context.S -o ../build/load_context.o
@@ -47,6 +48,7 @@ $CC $ARCH $COMMON_FLAGS -c kernel/kmain.c -o ../build/kmain.o
 # Link all object files into the final executable
 $CC $ARCH $COMMON_FLAGS -T $LINKER_SCRIPT -o $OUTPUT_ELF \
     ../build/bootloader.o \
+    ../build/syscall.o \
     ../build/uart.o \
     ../build/timer.o \
     ../build/memory.o \

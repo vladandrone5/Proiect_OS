@@ -3,7 +3,6 @@
 
 #include "../misc/types.h"
 
-void yield(void);
 void _exec(u8 id, u8 priority,const u8 *program);
 void _kill(u8 id);
 void _ps(void);

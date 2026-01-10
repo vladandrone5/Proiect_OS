@@ -5,10 +5,13 @@
 #include "../plic/plic.h"
 #include "../keyboard/keyboard.h"
 #include "../process/process.h"
+#include "../syscall/syscall.h"
 
 void stvec_idt(void)
 {
     __asm__ volatile (
+        ".org  stvec_idt + 0*4;"
+        "jal   zero,syscall_handler;"
         ".org  stvec_idt + 5*4;"
         "jal   zero,sti_handler;"
         ".org  stvec_idt + 9*4;"
@@ -68,6 +71,44 @@ void interrupts_init(void)
 
     setup_timer_int_csrs(FREAKUENCY);
 }
+
+#pragma GCC push_options
+#pragma GCC optimize ("align-functions=4")
+
+void syscall_handler(void)
+{
+    if(read_csr_scause() == USER_MODE_EXECPTION)
+    {
+        switch (syscall_args.a7)
+        {
+        case 1:{ sys_write(syscall_args.a0, (u8 *)syscall_args.a1, syscall_args.a2); break; }
+        case 2:{ sys_yield(); break; }
+        case 3:{ syscall_return_value = sys_get_time(); break;}
+        default: {syscall_return_value = -1; break;}
+        }
+
+        write_csr_sepc(read_csr_sepc()+4);
+    }
+    else
+    {
+        // DEBUGGING: If we get here, it's NOT a syscall. 
+        // It's a crash (Access Fault, Illegal Instr, etc.)
+        
+        // Try to print "E" directly to UART to signal a crash
+        // (Bypass syscalls, write directly to memory)
+        volatile char *uart = (volatile char *)0x10000000;
+        *uart = 'E';
+        *uart = 'R';
+        *uart = 'R';
+        
+        // Spin forever so we don't skip the fault and hide it
+        while(1); 
+    }
+
+   
+}
+
+#pragma GCC pop_options
 
 #pragma GCC push_options
 #pragma GCC optimize ("align-functions=4")

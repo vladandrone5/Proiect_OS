@@ -6,11 +6,6 @@
 #include "../example_progs/prog.h"
 #include "../string/string.h"
 
-void yield(void)
-{
-    process_runtime = process_context[current_process].time_slice;
-}
-
 void _exec(u8 id, u8 priority, const u8 *program)
 {
     // refactor function so that the ifs only set a variable that holds the program location and then if the last else if not ran do the return code sequence

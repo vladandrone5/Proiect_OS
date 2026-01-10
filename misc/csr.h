@@ -24,6 +24,7 @@ static inline u32 read_csr_stvec(void);
 static inline u32 read_csr_sepc(void);
 static inline u32 read_csr_satp(void);
 static inline u64 read_csr_mtime(void);
+static inline u32 read_csr_scause(void);
 
 static inline void clear_bit_csr_sstatus(u32 mask);
 
@@ -116,6 +117,17 @@ static inline u32 read_csr_stvec(void)
                         : // input not used
                         : // clobbered not used
                      );
+    return csr_value;
+}
+
+static inline u32 read_csr_scause(void)
+{
+    u32 csr_value = 0;
+    __asm__ volatile("csrr %0, scause"
+                        :"=r"(csr_value)
+                        :
+                        :
+                    );
     return csr_value;
 }
 
