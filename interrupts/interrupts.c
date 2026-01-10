@@ -5,7 +5,6 @@
 #include "../plic/plic.h"
 #include "../keyboard/keyboard.h"
 #include "../process/process.h"
-#include "../debug/debug.h"
 
 void stvec_idt(void)
 {

@@ -34,6 +34,8 @@ $CC $ARCH $COMMON_FLAGS -c timer/timer.c -o ../build/timer.o
 $CC $ARCH $COMMON_FLAGS -c memory/memory.c -o ../build/memory.o
 $CC $ARCH $COMMON_FLAGS -c plic/plic.c -o ../build/plic.o
 $CC $ARCH $COMMON_FLAGS -c string/string.c -o ../build/string.o
+$CC $ARCH $COMMON_FLAGS -c process/load_context.S -o ../build/load_context.o
+$CC $ARCH $COMMON_FLAGS -c process/switch_context.S -o ../build/switch_context.o
 $CC $ARCH $COMMON_FLAGS -c process/process.c -o ../build/process.o
 $CC $ARCH $COMMON_FLAGS -c example_progs/prog.c -o ../build/progs.o
 $CC $ARCH $COMMON_FLAGS -c terminal/sys_cmd.c -o ../build/sys_cmd.o
@@ -50,6 +52,8 @@ $CC $ARCH $COMMON_FLAGS -T $LINKER_SCRIPT -o $OUTPUT_ELF \
     ../build/memory.o \
     ../build/plic.o \
     ../build/string.o \
+    ../build/load_context.o \
+    ../build/switch_context.o \
     ../build/process.o \
     ../build/progs.o \
     ../build/sys_cmd.o \

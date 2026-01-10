@@ -24,7 +24,7 @@ typedef enum
 }REGISTER_ABI_NAME;
 
 typedef enum
-{ // MAYBE ADD PROCESS WAITING AND MAYBE PROCESS DEAD
+{
     PROCESS_INACTIVE,
     PROCESS_ACTIVE,
     PROCESS_WAITING,
@@ -39,12 +39,13 @@ typedef struct
 
 typedef struct process_t
 {
-    u32 stack[PROCESS_STACK_SIZE];
     regs env; 
+    u32 stack[PROCESS_STACK_SIZE];
     u8 process_name[128];
-    PROCESS_STATE state;
     u8 process_id;
     u8 time_slice;
+    PROCESS_STATE state;
+   
 }process;
 
 extern u8 last_used_id ;
@@ -52,17 +53,20 @@ extern u8 active_processes; /* bitwise apparition vector to know how many proces
 extern u8 current_process; /* numeric index to current process that runs */
 extern u8 process_runtime; /* used to await priority (n) timer interrupts for each process */
 extern process process_context[8]; /* hold data for all active processes */
+extern process *process_list[8]; /* pointers to processes, used for process reordering->contiguous line of bits representing running programs */
 extern u32 kernel_rpc;
 
-void __attribute__((naked)) switch_sp(u32 new_sp);
+extern void switch_context(process *old_process, process *new_process);
+extern void load_context(process *new_process);
 
+u8 make_mask_portion(u8 no_bits);
 u8 get_new_id(u8 id);
+void start_process(void);
+void change_cp_on_kill(u8 p_ctx_idx);
 void initialize_processes(void);
 void process_done(void);
-u8 save_context(process *active_process);
-u8 load_context(process *active_process);
 u8 add_process(u8 id,u8 priority,const u8 *process_name,u32 program_location);
-u8 remove_process(void);
+u8 remove_process(u8 p_ctx_idx);
 void schedule(void);
 
 #endif

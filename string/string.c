@@ -1,7 +1,30 @@
 #include "string.h"
 
+i32 strlen(const u8 *source)
+{
+    u32 char_cnt = 0;
+
+    while(*source++)
+    {
+        ++char_cnt;
+
+        if(char_cnt>=STRING_LIMIT)
+        {
+            return (i32)STRING_END_TIMEOUT;
+        }
+    }
+
+    return char_cnt;
+}
+
+u8 next_char_is(const u8 *source, u8 char_to_cmp)
+{
+    return *(source+1) == char_to_cmp;
+}
+
 u8 numerical_to_data(u8 num_char)
 {
+    // transforms ascii numerical chars into their represented value ex: '7' -> 7
     // check if its a numer as a char
     return num_char-'0';
 }
@@ -41,4 +64,21 @@ u8 strncmp(const u8 *source1, const u8 *source2, const u32 buff_len)
         }
     }
     return 1;
+}
+
+u8 is_command(const u8 *source, const u8 *command)
+{
+    i32 command_len = strlen(command);
+
+    if(command_len<0)
+    {
+        return (u8)0;
+    }
+
+    if(strncmp(source, command, command_len) && (next_char_is(source+command_len-1,' ') || next_char_is(source+command_len-1,'\0')))
+    {
+        return (u8)1;
+    }
+
+    return (u8)0;
 }

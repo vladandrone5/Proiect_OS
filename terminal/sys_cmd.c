@@ -14,6 +14,7 @@ void yield(void)
 void _exec(u8 id, u8 priority, const u8 *program)
 {
     // refactor function so that the ifs only set a variable that holds the program location and then if the last else if not ran do the return code sequence
+    // make an array holding all the predetermined and global programs and search in it using the program name and the buffer
     if(strncmp(program,(const u8 *)"prog1",6))
     {
         u8 return_code = add_process(id,priority,program,(u32)&prog1);
@@ -61,9 +62,12 @@ void _ps(void)
 
     for(u8 pr=0;pr<8;pr++)
     {
-        if(process_context[pr].state != PROCESS_DEAD && process_context[pr].state != PROCESS_INACTIVE)
+        if(process_list[pr] == 0)
+            break;
+
+        if(process_list[pr]->state != PROCESS_DEAD && process_list[pr]->state != PROCESS_INACTIVE)
         {
-            uart_printf((const u8 *)"> ID:%u\tPNAME:%s\n",process_context[pr].process_id, process_context[pr].process_name);
+            uart_printf((const u8 *)"> ID:%u\tPNAME:%s\n",process_list[pr]->process_id, process_list[pr]->process_name);
         }
     }
     uart_prints((const u8 *)"\n");
@@ -72,17 +76,22 @@ void _ps(void)
 void _kill(u8 id)
 {
     if(active_processes == 0)
+    {
+        uart_prints((const u8 *)"_kill error:No programs currently running...\n");
         return;
+    }
 
     for(u8 pr = 0; pr<8; pr++)
     {
-        if(process_context[current_process].process_id == id)
+        if(process_list[pr]->process_id == id)
         {
-            uart_prints((const u8 *)"Removed program\n");
-            remove_process();
+            remove_process(pr);
             return;
         }
     }
+
+    uart_printf((const u8 *)"_kill_error:No current program running on ID:%u!\n",(u32)id);
+
 }
 
 void _shell(void)

@@ -4,7 +4,6 @@
 #include "../string/string.h"
 #include "../process/process.h"
 #include "../terminal/sys_cmd.h"
-#include "../debug/debug.h"
 
 u8 typing_buffer[256] = {0};
 u8 cmd_sent_buffer[256] = {0};
@@ -42,19 +41,19 @@ void subroutine_enter(void)
     keys_pressed_cnt = 0;
     buffer_edit_idx = 0;
 
-    if((strncmp(cmd_sent_buffer,(const u8 *)"exec",4) && *(cmd_sent_buffer+4) == '\0') || strncmp(cmd_sent_buffer,(const u8 *)"exec ",5))
+    if(is_command(cmd_sent_buffer,(const u8 *)"exec"))
     {
         _exec(++last_used_id, 10, cmd_sent_buffer+5);
     }
-    else if((strncmp(cmd_sent_buffer,(const u8 *)"kill",4) && *(cmd_sent_buffer+4) == '\0') || strncmp(cmd_sent_buffer,(const u8 *)"kill ",5))
+    else if(is_command(cmd_sent_buffer,(const u8 *)"kill"))
     {
         _kill(numerical_to_data(*(cmd_sent_buffer+5)));
     }
-    else if((strncmp(cmd_sent_buffer,(const u8 *)"ps",2) && *(cmd_sent_buffer+2) == '\0') || strncmp(cmd_sent_buffer,(const u8 *)"ps ",3))
+    else if(is_command(cmd_sent_buffer,(const u8 *)"ps"))
     {
         _ps();
     }
-    else if((strncmp(cmd_sent_buffer,(const u8 *)"clear",5) && *(cmd_sent_buffer+5) == '\0') || strncmp(cmd_sent_buffer,(const u8 *)"clear ",6))
+    else if(is_command(cmd_sent_buffer,(const u8 *)"clear"))
     {
         _clear();
     }
