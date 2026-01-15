@@ -3,7 +3,7 @@
 
 #include "../misc/types.h"
 
-#define USER_MODE_EXECPTION 9
+#define USER_MODE_EXECPTION 8
 
 void syscall_handler(void) __attribute__ ((interrupt("supervisor")));
 void sti_handler(void) __attribute__ ((interrupt("supervisor")));

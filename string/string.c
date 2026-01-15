@@ -1,4 +1,5 @@
 #include "string.h"
+#include "../uart/uart.h"
 
 i32 strlen(const u8 *source)
 {
@@ -22,11 +23,28 @@ u8 next_char_is(const u8 *source, u8 char_to_cmp)
     return *(source+1) == char_to_cmp;
 }
 
-u8 numerical_to_data(u8 num_char)
+u8 numerical_to_data(u8 *num_char)
 {
     // transforms ascii numerical chars into their represented value ex: '7' -> 7
     // check if its a numer as a char
-    return num_char-'0';
+    i32 len = strlen(num_char);
+    u8 tens_pow = 1;
+    u8 numerical_value = 0;
+
+    for(u8 pow=0;pow<(u8)len-1;pow++)
+    {
+        tens_pow*=10;
+    }
+
+    for(u8 buff_idx=0;buff_idx<(u8)len;buff_idx++)
+    {
+        numerical_value+=tens_pow*(num_char[buff_idx]-'0');
+        tens_pow/=10;
+    }
+
+    uart_printf((const u8 *)"Num value:%u\n",numerical_value);
+
+    return numerical_value;
 }
 
 u32 strncpy(u8 *destination, const u8 *source, const u32 buff_len)

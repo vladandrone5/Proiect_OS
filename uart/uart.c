@@ -1,5 +1,4 @@
 #include "uart.h"
-#include "../syscall/syscall.h"
 #include <stdarg.h>
 
 volatile u8 *UART_WR_ADDR = (u8 *)UART_ADDR;

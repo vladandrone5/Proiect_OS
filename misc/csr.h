@@ -13,6 +13,8 @@
 
 #define STVEC_MODE_MASK (u32)(1) // enable vectored interrupts through MTVEC reg : lsb is mode and all the other bits are the address of the ISR vector
 
+#define USER_PRIVILEDGE_MASK (u32)(1<<8)
+
 //mip - machine interrupt pending register; last 16 bits for normal interrupts; its has machanisms to be pending
 
 //mstatus - hart operating state register

@@ -47,7 +47,7 @@ void subroutine_enter(void)
     }
     else if(is_command(cmd_sent_buffer,(const u8 *)"kill"))
     {
-        _kill(numerical_to_data(*(cmd_sent_buffer+5)));
+        _kill(numerical_to_data(cmd_sent_buffer+5));
     }
     else if(is_command(cmd_sent_buffer,(const u8 *)"ps"))
     {

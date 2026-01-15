@@ -118,6 +118,7 @@ void sti_handler(void)
     if(kernel_rpc == 0)
     {
         kernel_rpc = read_csr_sepc();
+        clear_bit_csr_sstatus(USER_PRIVILEDGE_MASK);
     }
 
     schedule(); 

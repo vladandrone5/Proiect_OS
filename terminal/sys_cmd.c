@@ -78,6 +78,11 @@ void _kill(u8 id)
 
     for(u8 pr = 0; pr<8; pr++)
     {
+        if(process_list[pr] == 0)
+        {
+            break;
+        }
+
         if(process_list[pr]->process_id == id)
         {
             remove_process(pr);
@@ -86,7 +91,6 @@ void _kill(u8 id)
     }
 
     uart_printf((const u8 *)"_kill_error:No current program running on ID:%u!\n",(u32)id);
-
 }
 
 void _shell(void)

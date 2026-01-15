@@ -1,18 +1,5 @@
 #!/bin/bash
 
-#riscv64-unknown-elf-gcc -march=rv32ima -mabi=ilp32 -nostdlib -c bootloader.S -o bootloader.o
-#riscv64-unknown-elf-gcc -march=rv32ima -mabi=ilp32 -nostdlib -T linker.ld bootloader.o -o bootloader.elf
-
-# riscv64-unknown-elf-gcc -march=rv32im_zicsr -mabi=ilp32 -nostdlib -c bootloader/bootloader.S -o ../build/bootloader.o
-# riscv64-unknown-elf-gcc -march=rv32im_zicsr -mabi=ilp32 -c uart/uart.c -o ../build/uart.o
-# riscv64-unknown-elf-gcc -march=rv32im_zicsr -mabi=ilp32 -c timer/timer.c -o ../build/timer.o
-# riscv64-unknown-elf-gcc -march=rv32im_zicsr -mabi=ilp32 -c interrupts/interrupts.c -o ../build/interrupts.o
-# riscv64-unknown-elf-gcc -march=rv32im_zicsr -mabi=ilp32 -c kernel/kmain.c -o ../build/kmain.o
-# riscv64-unknown-elf-gcc -O0 -march=rv32im_zicsr -mabi=ilp32 -nostdlib -T linker/linker.ld ../build/bootloader.o ../build/kmain.o ../build/uart.o ../build/timer.o ../build/interrupts.o -o ../build/bootloader.elf
-
-# qemu-system-riscv32 -machine virt -m 4G -bios ../opensbi-riscv32-generic-fw_dynamic.bin -kernel ../build/bootloader.elf
-# --- Setup ---
-# Create the build directory if it doesn't exist (fixes the last error)
 mkdir -p ../build
 echo "Compiling and linking RISC-V OS components..."
 
@@ -30,6 +17,7 @@ $CC $ARCH -c bootloader/bootloader.S -o ../build/bootloader.o
 
 # C Modules (Assuming you have these paths and files)
 $CC $ARCH $COMMON_FLAGS -c uart/uart.c -o ../build/uart.o
+$CC $ARCH $COMMON_FLAGS -c uart/print.c -o ../build/print.o
 $CC $ARCH $COMMON_FLAGS -c timer/timer.c -o ../build/timer.o
 $CC $ARCH $COMMON_FLAGS -c memory/memory.c -o ../build/memory.o
 $CC $ARCH $COMMON_FLAGS -c syscall/syscall.c -o ../build/syscall.o
@@ -50,6 +38,7 @@ $CC $ARCH $COMMON_FLAGS -T $LINKER_SCRIPT -o $OUTPUT_ELF \
     ../build/bootloader.o \
     ../build/syscall.o \
     ../build/uart.o \
+    ../build/print.o \
     ../build/timer.o \
     ../build/memory.o \
     ../build/plic.o \
