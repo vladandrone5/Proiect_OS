@@ -17,7 +17,8 @@ $CC $ARCH -c bootloader/bootloader.S -o ../build/bootloader.o
 
 # C Modules (Assuming you have these paths and files)
 $CC $ARCH $COMMON_FLAGS -c uart/uart.c -o ../build/uart.o
-$CC $ARCH $COMMON_FLAGS -c uart/print.c -o ../build/print.o
+$CC $ARCH $COMMON_FLAGS -c userlib/print.c -o ../build/print.o
+$CC $ARCH $COMMON_FLAGS -c userlib/system.c -o ../build/system.o
 $CC $ARCH $COMMON_FLAGS -c timer/timer.c -o ../build/timer.o
 $CC $ARCH $COMMON_FLAGS -c memory/memory.c -o ../build/memory.o
 $CC $ARCH $COMMON_FLAGS -c syscall/syscall.c -o ../build/syscall.o
@@ -39,6 +40,7 @@ $CC $ARCH $COMMON_FLAGS -T $LINKER_SCRIPT -o $OUTPUT_ELF \
     ../build/syscall.o \
     ../build/uart.o \
     ../build/print.o \
+    ../build/system.o \
     ../build/timer.o \
     ../build/memory.o \
     ../build/plic.o \
@@ -67,4 +69,4 @@ echo "Starting QEMU..."
 riscv64-unknown-elf-objcopy -O binary $OUTPUT_ELF ../build/bootloader.bin
 
 # Run QEMU
-qemu-system-riscv32 -machine virt -m 4G  -bios ../opensbi-riscv32-generic-fw_dynamic.bin -kernel $OUTPUT_ELF # i fucking hate openbsi i will kill someone that workedn ont he development for making it start in supervisor mode instread of machine mide IN PIZDA MASII
+qemu-system-riscv32 -machine virt -m 2G  -bios ../opensbi-riscv32-generic-fw_dynamic.bin -kernel $OUTPUT_ELF # i fucking hate openbsi i will kill someone that workedn ont he development for making it start in supervisor mode instread of machine mide IN PIZDA MASII

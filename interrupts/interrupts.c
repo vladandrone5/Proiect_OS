@@ -84,7 +84,7 @@ void syscall_handler(void)
         case 1:{ sys_write(syscall_args.a0, (u8 *)syscall_args.a1, syscall_args.a2); break; }
         case 2:{ sys_yield(); break; }
         case 3:{ syscall_return_value = sys_get_time(); break;}
-        default: {syscall_return_value = -1; break;}
+        default: {syscall_return_value = (u64)(-1); break;}
         }
 
         write_csr_sepc(read_csr_sepc()+4);
@@ -104,8 +104,6 @@ void syscall_handler(void)
         // Spin forever so we don't skip the fault and hide it
         while(1); 
     }
-
-   
 }
 
 #pragma GCC pop_options

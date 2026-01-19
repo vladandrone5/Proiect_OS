@@ -9,22 +9,9 @@ u8 last_used_id = 0;
 u8 active_processes = 0;
 u8 current_process = 0;
 u8 process_runtime = 0;
-process process_context[8];
+ __attribute__((section(".proc_ctxs"))) process process_context[8];
 process *process_list[8];
 u32 kernel_rpc = 0;
-
-u8 make_mask_portion(u8 no_bits)
-{
-	u8 mask = 0;
-
-	for(;no_bits>0;no_bits--)
-	{
-		mask>>=1;
-		mask|=(1<<7);
-	}
-
-	return mask;
-}
 
 u8 get_new_id(u8 id) /* gets new id if the curretn one is used */
 {
@@ -184,7 +171,7 @@ void schedule(void)
 	{
 		process_runtime = 0;
 
-		if(new_process>=7 || process_list[new_process] == 0)
+		if(new_process>7 || process_list[new_process] == 0)
 		{
 			new_process = 0;
 		}
@@ -242,21 +229,8 @@ u8 remove_process(u8 p_ctx_idx)
 
 	process_runtime = 255;
 
-	if(p_ctx_idx == 0)
-	{
-		active_processes<<=1;
-	}
 
-	else if(p_ctx_idx == 7)
-	{
-		active_processes&=254;
-	}
-	else
-	{
-		u8 fhmask = make_mask_portion(p_ctx_idx); // first half of the mask
-		u8 shmask = make_mask_portion(7-p_ctx_idx)>>(p_ctx_idx+1); // second half of the mask
-		active_processes = fhmask | ((shmask&active_processes)<<1);
-	}
+	active_processes<<=1;
 
 	// other removel stuff
 	process *active_process = process_list[p_ctx_idx];
@@ -275,142 +249,3 @@ u8 remove_process(u8 p_ctx_idx)
 
 	return 0;
 }
-
-// u8 save_context(process *active_process)
-// {
-// 	if (active_process->state != PROCESS_ACTIVE)
-// 	{
-// 		return ERR_PRI;
-// 	}
-
-// 	//uart_prints((const u8 *)"\0\0\0\0\0\0\0\0");
-
-
-// 	u32 *caller_process_stack_frame = 0; // literally black magic
-// 	__asm__ volatile("mv %0, s0"
-// 					 : "=r"(caller_process_stack_frame)
-// 					 :
-// 					 :);
-
-// 	caller_process_stack_frame = (u32 *)(*(caller_process_stack_frame - 2));
-
-// 	// -0x20 needed for the actual sp inside load func
-// 	__asm__ volatile("mv %0,ra;"
-// 					 "addi %1,s0, -0x20 ;" 
-// 					 "mv %2,gp ;"
-// 					 "mv %3,tp ;"
-// 					 "lw %4,-0x8(%9) ;"
-// 					 "lw %5,-0xc(%9) ;"
-// 					 "lw %6,-0x10(%9) ;"
-// 					 "mv %7,s0 ;"
-// 					 "mv %8,s1 ;"
-
-// 					 : "=r"(active_process->env.x[ra]),
-// 					   "=r"(active_process->env.x[sp]),
-// 					   "=r"(active_process->env.x[gp]),
-// 					   "=r"(active_process->env.x[tp]),
-// 					   "=r"(active_process->env.x[t0]), "=r"(active_process->env.x[t1]), "=r"(active_process->env.x[t2]),
-// 					   "=r"(active_process->env.x[s0]), "=r"(active_process->env.x[s1])
-// 					 : "r"(caller_process_stack_frame)
-// 					 :);
-
-// 	__asm__ volatile(
-// 		"lw %0,-0x18(%9) ;"
-// 		"lw %1,-0x1c(%9) ;"
-// 		"lw %2,-0x20(%9) ;"
-// 		"lw %3,-0x24(%9) ;"
-// 		"lw %4,-0x28(%9) ;"
-// 		"lw %5,-0x2c(%9) ;"
-// 		"lw %6,-0x30(%9) ;"
-// 		"lw %7,-0x34(%9) ;"
-// 		"mv %8,s2 ;"
-
-// 		: "=r"(active_process->env.x[a0]), "=r"(active_process->env.x[a1]),
-// 		  "=r"(active_process->env.x[a2]), "=r"(active_process->env.x[a3]),
-// 		  "=r"(active_process->env.x[a4]), "=r"(active_process->env.x[a5]),
-// 		  "=r"(active_process->env.x[a6]), "=r"(active_process->env.x[a7]),
-// 		  "=r"(active_process->env.x[s2])
-// 		: "r"(caller_process_stack_frame)
-// 		:);
-
-// 	__asm__ volatile(
-// 		"mv %0,s5 ;"
-// 		"mv %1,s6 ;"
-// 		"mv %2,s7 ;"
-// 		"mv %3,s8 ;"
-// 		"mv %4,s9 ;"
-// 		"mv %5,s10 ;"
-// 		"mv %6,s11 ;"
-// 		"mv %7,s3 ;"
-// 		"mv %8,s4 ;"
-
-// 		: "=r"(active_process->env.x[s5]), "=r"(active_process->env.x[s6]),
-// 		  "=r"(active_process->env.x[s7]), "=r"(active_process->env.x[s8]),
-// 		  "=r"(active_process->env.x[s9]), "=r"(active_process->env.x[s10]), "=r"(active_process->env.x[s11]),
-// 		  "=r"(active_process->env.x[s3]), "=r"(active_process->env.x[s4])
-// 		:);
-
-// 	__asm__ volatile(
-// 		"lw %0,-0x40(%4) ;"
-// 		"lw %1,-0x44(%4) ;"
-// 		"lw %2,-0x38(%4) ;"
-// 		"lw %3,-0x3c(%4) ;"
-
-// 		: "=r"(active_process->env.x[t5]), "=r"(active_process->env.x[t6]),
-// 		  "=r"(active_process->env.x[t3]), "=r"(active_process->env.x[t4])
-// 		: "r"(caller_process_stack_frame)
-// 		:);
-
-// 	active_process->env.pc = read_csr_sepc();
-// 	active_process->state = PROCESS_WAITING;
-
-// 	return 0;
-// }
-
-// u8 load_context(process *active_process)
-// {
-// 	if (active_process->state == PROCESS_INACTIVE)
-// 	{
-// 		return ERR_PRI;
-// 	}
-
-// 	//uart_printf((const u8 *)"\0\0\0\0\0\0\0\0\0");
-
-// 	__asm__ volatile("mv sp,%0 ;"
-// 					 "mv gp,%1 ;"
-// 					 "mv tp,%2 ;"
-// 					 "mv s1,%3 ;"
-// 					 "mv s2,%4 ;"
-// 		             "mv s3,%5 ;"
-// 					 "mv s4,%6 ;"
-// 					 "mv s5,%7 ;"
-// 					 "mv s6,%8 ;"
-// 					 "mv s7,%9 ;"
-// 					 :
-// 					 : "r"(active_process->env.x[sp]),
-// 					   "r"(active_process->env.x[gp]),
-// 					   "r"(active_process->env.x[tp]),
-// 					   "r"(active_process->env.x[s1]), "r"(active_process->env.x[s2]), 
-// 					   "r"(active_process->env.x[s3]), "r"(active_process->env.x[s4]), 
-// 					   "r"(active_process->env.x[s5]), "r"(active_process->env.x[s6]), 
-// 					   "r"(active_process->env.x[s7]) 
-// 					 :);
-
-// 	__asm__ volatile(
-// 		"mv s8,%0 ;"
-// 		"mv s9,%1 ;"
-// 		"mv s10,%2 ;"
-// 		"mv s11,%3 ;"
-// 		:
-// 		: "r"(active_process->env.x[s8]), "r"(active_process->env.x[s9]), 
-// 		  "r"(active_process->env.x[s10]), "r"(active_process->env.x[s11])
-// 		:);
-
-	
-// 	//uart_printf((const u8 *)"\0\0\0\0\0\0\0\0\0\0\0");
-
-// 	write_csr_sepc(active_process->env.pc);
-// 	active_process->state = PROCESS_ACTIVE;
-
-// 	return 0;
-// }

@@ -41,9 +41,7 @@ u8 numerical_to_data(u8 *num_char)
         numerical_value+=tens_pow*(num_char[buff_idx]-'0');
         tens_pow/=10;
     }
-
-    uart_printf((const u8 *)"Num value:%u\n",numerical_value);
-
+    
     return numerical_value;
 }
 

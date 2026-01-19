@@ -9,5 +9,7 @@ void _ps(void);
 void _help(void);
 void _clear(void);
 void _shell(void);
+void _free_heap_online_click_download(void);
+void _easter_egg(void);
 
 #endif

@@ -14,21 +14,28 @@ SECTIONS {
         _bss_start = .;
         *(.bss*)
         *(COMMON)
-        . = . + (1024 * 1024);
         _bss_end = .;
     } /*for unitialized*/
 
-     . = ALIGN(16);
-    heap_start = .;
-    . = . + (1 * 1024 * 1024);  /* 1MB heap */
-    heap_end = .;
-
     /* ---------------------------
      * Stack — 1 MB
-     * We'll place stack ABOVE heap.
      * --------------------------- */
-    . = ALIGN(16);
+    . = 0x80400000;
     stack_bottom = .;
     . = . + (1 * 1024 * 1024);  /* 1MB stack */
     stack_top = .;    
+
+    . = 0x80500000;
+    .proc_ctxs (NOLOAD) : {
+        __proc_ctxs_start = .;
+        *(.proc_ctxs)
+        . = ALIGN(16);
+        __proc_ctxs_end = .;
+    }
+
+    . = 0x80D00000;
+    . = ALIGN(16);
+    HEAP_START = .;
+    . = . + (1024 * 1024 * 1024);
+    HEAP_END = .;
 }

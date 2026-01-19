@@ -35,10 +35,11 @@ void sys_write(u8 fd, u8 *buffer, u32 len)
         return;
     }
 
-    for(u32 buff_idx = 0; buff_idx<len; ++buff_idx)
-    {
-        write_addr[buff_idx] = buffer[buff_idx];
-    }
+    (void)len;
+    // for(u32 buff_idx = 0; buff_idx<len; ++buff_idx)
+    // {
+    //     write_addr[buff_idx] = buffer[buff_idx];
+    // }
 }
 
 u64 sys_get_time(void)

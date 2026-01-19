@@ -7,7 +7,7 @@ u8 hex[17] = "0123456789abcdef";
 void putchar(const u8 c)
 {
    
-    syscall(1,(u32)&c,1,0,0,0,0,1);
+    syscall(1,(u32)&c,1,0,0,0,0,SYS_WRITE);
 
     return;
 }

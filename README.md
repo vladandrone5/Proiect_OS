@@ -9,5 +9,4 @@ Proiect ITSC
 ## wrote func prototypes for plic 
 ## TO DO: add finite program trmpolin in start process and modify schedule so it works and removes programs that have finished
 ## TO DO: create logic to call process done from inside schedule? think of how to find out that the last ret instrunction has been called
-## TO DO: add syscalls
 ## TO DO: add file system

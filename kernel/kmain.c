@@ -5,11 +5,13 @@
 #include "../process/process.h"
 #include "../misc/csr.h"
 #include "../terminal/sys_cmd.h"
+#include "../memory/memory.h"
 
 void kmain(void) {
 
-	initialize_processes();
 	reset_interrupts();
+	initialize_processes();
+	init_heap();
 	interrupts_init();
 
 	_shell();

@@ -57,6 +57,18 @@ void subroutine_enter(void)
     {
         _clear();
     }
+    else if(is_command(cmd_sent_buffer,(const u8 *)"help"))
+    {
+        _help();
+    }
+    else if(is_command(cmd_sent_buffer,(const u8 *)"free_my_boy_heap")) // why did they lock him up
+    {
+        _free_heap_online_click_download();
+    }
+    else if(is_command(cmd_sent_buffer,(const u8 *)"bozgod<3")) // easter egg
+    {
+        _easter_egg();
+    }
     else
     {
         uart_printf((const u8 *)"'%s' is not a valid command!\n",cmd_sent_buffer);
