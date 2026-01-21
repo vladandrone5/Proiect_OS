@@ -3,7 +3,7 @@ Functional operating system for RISC-V 32 architecture, developed from scratch i
 
 **Authors:** Vlad Androne and Antoniu Andreas
 
-**Architecture:** RISC-V RV32 ISA
+**Architecture:** RISC-V RV32 ISA 
 **Platform:** QEMU (`qemu-system-riscv32`)  
 **Languages:** C & RISC-V Assembly
 
@@ -11,9 +11,9 @@ Functional operating system for RISC-V 32 architecture, developed from scratch i
 ## Key Features
 
 * **Boot Process:** Boots via SBI (OpenSBI) directly into `kmain()` and displays a boot banner via UART.
-* **Scheduling:** Implements preemptive scheduling (Round-Robin) driven by machine timer ticks. Supports running multiple concurrent processes.
-* **Memory Management:** Features a kernel heap allocator (bump or free-list) supporting `kmalloc` and `kfree`.
-* **System Calls:** Implements a trap mechanism for user-to-kernel interaction, including:
+* **Scheduling:** Implements preemptive scheduling (Round-Robin) with time slice. Supports running multiple concurrent processes (maximum of 8).
+* **Memory Management:** Features a kernel heap allocator supporting `kmalloc` and `kfree`.
+* **System Calls:** Implements a trap mechanism for user-to-kernel interaction (`USER_MODE_EXCEPTION`), including:
     * `write()`: Output to UART.
     * `yield()`: Voluntary CPU relinquishment.
     * `get_time()`: Show the system tick counter.
@@ -35,7 +35,7 @@ To run, make sure the `run.sh` file has the execute right (`chmod +x run.sh`). T
 
 *This command compiles the project and launches the OS in QEMU.*
 
-## 💻 Shell Commands
+## Shell Commands
 
 Once the OS is running, you can use the following commands in the UART terminal:
 
@@ -46,19 +46,23 @@ Once the OS is running, you can use the following commands in the UART terminal:
 | `kill <prog_id>` | Terminate a specific process. |
 | `exec <prog>` | Launch a user program from the file system. |
 
-## Demo Scenario
+## What a demo should do
 
 Following the project requirements, a standard run demonstrates:
-1.  **Boot:** Banner display and tick counter initialization.
-2.  **Multitasking:** Execution of multiple processes (`exec prog1`, `exec prog2`).
-3.  **Preemption:** Process scheduling using the "time slice" and "Round robin" algorithm (up to 8 processes).
-4.  **Management:** Successful use of `kill` and memory statistics reporting.
+1.  **Boot:** Banner display and tick counter initialization, interrupt initialization and reset.
+2.  **Multitasking:** Execution of multiple processes (when calling `exec prog1`, `exec prog2`).
+3.  **Checking process list:** After calling `ps` command a list of processes should appear.
+4.  **Preemption:** Process scheduling visible using `uart_printf` in the terminal.
+5.  **Management:** Successful use of `kill` and memory statistics reporting (heap before/after allocation and after free).
 
-## Project Structure (main directories)
+## Project Structure (important directories)
 
 * `kernel/` - Core kernel source code.
 * `userlib/` - User-space library for user interface commands.
 * `interrupts/` - Interrupt handling functions.
+* `memory/` - Directory for memory management.
+* `keyboard/` - Keyboard exeptions handling (special keys + buffer processing).
+* `uart/` - UART printing functions for M mode and S mode.
 * `run.sh` - Build configuration + opens QEMU and runs the OS.
 
 <details>
