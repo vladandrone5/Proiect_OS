@@ -4,7 +4,7 @@ Functional operating system for RISC-V 32 architecture, developed from scratch i
 **Authors:** Vlad Androne and Antoniu Andreas
 
 **Architecture:** RISC-V RV32 ISA
-**Platform:** QEMU (`qemu-system-riscv32`) 
+**Platform:** QEMU (`qemu-system-riscv32`)  
 **Languages:** C & RISC-V Assembly
 
 
