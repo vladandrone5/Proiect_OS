@@ -41,24 +41,24 @@ Once the OS is running, you can use the following commands in the UART terminal:
 
 | Command | Description |
 | :--- | :--- |
-| `help` | [cite_start]List available commands[cite: 34]. |
-| `ps` | [cite_start]Display process PID, state, and CPU time[cite: 35]. |
-| `kill <pid>` | [cite_start]Terminate a specific process[cite: 36]. |
-| `exec <prog>` | [cite_start]Launch a user program from the file system[cite: 37]. |
+| `help` | List available commands. |
+| `ps` | Display process PID, state, and CPU time. |
+| `kill <prog_id>` | Terminate a specific process. |
+| `exec <prog>` | Launch a user program from the file system. |
 
-## 🧪 Demo Scenario
+## Demo Scenario
 
-[cite_start]Following the project requirements, a standard run demonstrates[cite: 49]:
+Following the project requirements, a standard run demonstrates:
 1.  **Boot:** Banner display and tick counter initialization.
-2.  **Multitasking:** Execution of multiple processes (`exec u1`, `exec u2`).
-3.  **Preemption:** Interleaved output from processes confirming context switching.
-4.  [cite_start]**Management:** Successful use of `kill` and memory statistics reporting[cite: 54, 55].
+2.  **Multitasking:** Execution of multiple processes (`exec prog1`, `exec prog2`).
+3.  **Preemption:** Process scheduling using the "time slice" and "Round robin" algorithm (up to 8 processes).
+4.  **Management:** Successful use of `kill` and memory statistics reporting.
 
-## 📂 Project Structure
+## Project Structure (main directories)
 
-* `kernel/` - Core kernel source code (scheduler, memory, traps).
-* `user/` - User-space library (`libu`) and programs.
-* `include/` - System header files.
+* `kernel/` - Core kernel source code.
+* `userlib/` - User-space library for user interface commands.
+* `interrupts/` - Interrupt handling functions.
 * `Makefile` - Build configuration.
 
 <details>
