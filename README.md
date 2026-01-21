@@ -50,9 +50,9 @@ Once the OS is running, you can use the following commands in the UART terminal:
 
 Following the project requirements, a standard run demonstrates:
 1.  **Boot:** Banner display and tick counter initialization, interrupt initialization and reset.
-2.  **Multitasking:** Execution of multiple processes (when calling `exec prog1`, `exec prog2`).
+2.  **Multitasking:** Execution of multiple processes (ex: when calling `exec prog1`, `exec prog2`).
 3.  **Checking process list:** After calling `ps` command a list of processes should appear.
-4.  **Preemption:** Process scheduling visible using `uart_printf` in the terminal.
+4.  **Preemption:** Process scheduling visible (by using `uart_printf` in example programs) the terminal.
 5.  **Management:** Successful use of `kill` and memory statistics reporting (heap before/after allocation and after free).
 
 ## Project Structure (important directories)
