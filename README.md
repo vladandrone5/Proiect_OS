@@ -2,54 +2,38 @@
 Functional operating system for RISC-V 32 architecture, developed from scratch in C and Assembly.
 
 **Authors:** Vlad Androne and Antoniu Andreas
-**Languages:** RISC-V 32 Assembly, C
-**Emulator:** QEMU (`qemu-system-riscv32`)
-**Toolchain:** `riscv64-unknown-elf-gcc,ld,objcopy,gdb`
 
-# Proiect OS - RISC-V Kernel
+**Architecture:** RISC-V RV32 ISA
+**Platform:** QEMU (`qemu-system-riscv32`) 
+**Languages:** C & RISC-V Assembly
 
-[cite_start]**Architecture:** RISC-V RV32IMA [cite: 3]  
-[cite_start]**Platform:** QEMU (`qemu-system-riscv32`) [cite: 3]  
-[cite_start]**Language:** C & Assembly [cite: 43]
 
-## 📖 Overview
+## Key Features
 
-This repository contains a custom Operating System kernel developed from scratch for the RISC-V architecture. [cite_start]It implements core OS functionalities including preemptive scheduling, memory management, and system calls, strictly adhering to minimal dependencies (no standard `libc`)[cite: 61].
-
-## ✨ Key Features
-
-* [cite_start]**Boot Process:** Boots via SBI (OpenSBI) directly into `kmain()` and displays a boot banner via UART[cite: 4, 9].
-* [cite_start]**Scheduling:** Implements preemptive scheduling (Round-Robin) driven by machine timer ticks[cite: 17]. [cite_start]Supports running multiple concurrent processes[cite: 16].
-* [cite_start]**Memory Management:** Features a kernel heap allocator (bump or free-list) supporting `kmalloc` and `kfree`[cite: 19, 20].
+* **Boot Process:** Boots via SBI (OpenSBI) directly into `kmain()` and displays a boot banner via UART.
+* **Scheduling:** Implements preemptive scheduling (Round-Robin) driven by machine timer ticks. Supports running multiple concurrent processes.
+* **Memory Management:** Features a kernel heap allocator (bump or free-list) supporting `kmalloc` and `kfree`.
 * **System Calls:** Implements a trap mechanism for user-to-kernel interaction, including:
-    * [cite_start]`write()`: Output to UART[cite: 24].
-    * [cite_start]`yield()`: Voluntary CPU relinquishment[cite: 25].
-    * [cite_start]`gettime()`: Read the system tick counter[cite: 26].
-* [cite_start]**Program Loading:** Loads and executes ELF binaries (or flat binaries) from an embedded RAMFS[cite: 29].
-* [cite_start]**Interactive Shell:** A built-in UART monitor for managing processes and executing commands[cite: 31].
+    * `write()`: Output to UART.
+    * `yield()`: Voluntary CPU relinquishment.
+    * `get_time()`: Show the system tick counter.
+* **Interactive Shell:** A built-in UART monitor for managing processes and executing commands (`<EdgarieOS>:`).
 
-## 🛠️ Prerequisites
+## Prerequisites
 
-[cite_start]To build and run this project, you need the following toolchain installed[cite: 5]:
+To build and run this project, you need the following toolchain installed:
 
-* **Compiler:** `riscv64-unknown-elf-gcc`
+* **Compiler toolchain:** `riscv64-unknown-elf-gcc`
 * **Emulator:** `qemu-system-riscv32`
 * **Tools:** `make`, `gdb`, `objcopy`
 
-## 🚀 Building & Running
+## Building & Running
 
-The project uses a `Makefile` for automated building and emulation.
+The project uses a `run.sh` file for automated building and emulation.
+ 
+To run, make sure the `run.sh` file has the execute right (`chmod +x run.sh`). Then run in terminal the command `./run.sh` 
 
-1.  **Build the kernel:**
-    ```bash
-    make
-    ```
-
-2.  **Run in QEMU:**
-    ```bash
-    make run
-    ```
-    [cite_start]*This command compiles the project and launches the OS in QEMU[cite: 64].*
+*This command compiles the project and launches the OS in QEMU.*
 
 ## 💻 Shell Commands
 
