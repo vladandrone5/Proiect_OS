@@ -8,7 +8,7 @@ Functional operating system for RISC-V 32 architecture, developed from scratch i
 
 ## Key features
 
-* [cite start]**Boot and initialization:** Custom boot flow using open SBI to `kmain()`, displaying a boot banner via UART[cite: 4, 8, 9].
+* **Boot and initialization:** Custom boot flow using open SBI to `kmain()`, displaying a boot banner via UART.
 
 <details>
   <summary> Bloopers(README original)</summary>
