@@ -1,5 +1,14 @@
-# Proiect_OS
-Proiect ITSC
+# EdgarieOS
+Functional operating system for RISC-V 32 architecture, developed from scratch in C and Assembly.
+
+**Authors:** Vlad Androne and Antoniu Andreas
+**Languages:** RISC-V 32 Assembly, C
+**Emulator:** QEMU (`qemu-system-riscv32`)
+**Toolchain:** `riscv64-unknown-elf-gcc,ld,objcopy,gdb`
+
+## Key features
+
+* [cite start]**Boot and initialization:** Custom boot flow using open SBI to `kmain()`, displaying a boot banner via UART[cite: 4, 8, 9].
 
 <details>
   <summary> Bloopers(README original)</summary>
