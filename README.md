@@ -44,7 +44,7 @@ Once the OS is running, you can use the following commands in the UART terminal:
 | `help` | List available commands. |
 | `ps` | Display process PID, state, and CPU time. |
 | `kill <prog_id>` | Terminate a specific process. |
-| `exec <prog>` | Launch a user program from the file system. |
+| `exec <prog>` | Launch a user program. |
 
 ## What a demo should do
 
